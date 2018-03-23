@@ -11,6 +11,8 @@ const MAX_TEXT_LENGTH = 30
 
 function createImage (keyword, text) {
   return new Promise((resolve, reject) => {
+    keyword = keyword.toLowerCase()
+    
     if (text.length > MAX_TEXT_LENGTH) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
@@ -29,7 +31,9 @@ function createImage (keyword, text) {
       const comparisonBetweenImageAndDefaultImage = jimp.distance(defaultImage, loadedImage)
       const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
-      return reject(`No image found for keyword: ${keyword}`)
+      if (isDefaultImage) {
+        return reject(`No image found for keyword: ${keyword} (${comparisonBetweenImageAndDefaultImage})`)
+      }
       
       const huePosition = randomNumberBetween(0, 360)
       const hueRotatedCover = goosebumpsImage.color([
