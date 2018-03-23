@@ -16,14 +16,21 @@ function createImage (keyword, text) {
     }
     
     const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}/all?random=${randomNumberBetween(0, 20)}`
-
+    const defaultImage = `https://loremflickr.com/cache/resized/defaultImage_${WIDTH}_${HEIGHT}_nofilter.jpg`
+    
     Promise.all([
+      jimp.read(defaultImage),
       jimp.read(randomImage),
       jimp.read('goosebumps-cover.png'),
       jimp.loadFont(jimp.FONT_SANS_16_WHITE)
     ]).then(loadedAssets => {
-      const [loadedImage, goosebumpsImage, font] = loadedAssets
+      const [defaultImage, loadedImage, goosebumpsImage, font] = loadedAssets
+      
+      const comparisonBetweenImageAndDefaultImage = jimp.distance(defaultImage, loadedImage)
+      const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
+      return reject(`No image found for keyword: ${keyword}`)
+      
       const huePosition = randomNumberBetween(0, 360)
       const hueRotatedCover = goosebumpsImage.color([
         { apply: 'hue', params: [huePosition] }

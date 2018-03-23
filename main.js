@@ -9,8 +9,7 @@ app.get('/:keyword/:text', (request, response) => {
   if (!keyword || !text) {
     console.error('No keyword/text sent')
 
-    response.sendStatus(500)
-
+    response.status(500).send('No keyword/text sent')
   }
 
   createImage(keyword, text).then(b64String => {
@@ -26,7 +25,7 @@ app.get('/:keyword/:text', (request, response) => {
   .catch(error => {
     console.error(error)
 
-    response.sendStatus(500)
+    response.status(500).send(error)
   })
 })
 
