@@ -47,6 +47,7 @@ function createImage (keyword, text) {
       const textPosition = textPadMin + ((MAX_TEXT_LENGTH - text.length) * padPerCharacter)
 
       const mergedImage = loadedImage
+        .posterize(6)
         .composite(hueRotatedCover, 0, 0)
 
       const textOnImage = mergedImage
