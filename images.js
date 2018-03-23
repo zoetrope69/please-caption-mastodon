@@ -7,9 +7,14 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
+const MAX_TEXT_LENGTH = 30
+
 function createImage (keyword) {
   return new Promise((resolve, reject) => {
-    const text = `${keyword}`
+    let text = `${keyword}`
+    if (text.length > MAX_TEXT_LENGTH) {
+      text = text.substring(0, MAX_TEXT_LENGTH) + '...'
+    }
     const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}/all?random=${randomNumberBetween(0, 20)}`
 
     Promise.all([
@@ -17,7 +22,7 @@ function createImage (keyword) {
       jimp.read('goosebumps-cover.png'),
       jimp.loadFont(jimp.FONT_SANS_16_WHITE)
     ]).then(loadedAssets => {
-      [loadedImage, goosebumpsImage, font] = loadedAssets
+      const [loadedImage, goosebumpsImage, font] = loadedAssets
 
       const huePosition = randomNumberBetween(0, 360)
       const hueRotatedCover = goosebumpsImage.color([
@@ -26,8 +31,8 @@ function createImage (keyword) {
 
       const textPadMin = 30
       const textPadMax = 130
-      const maxText = 22
-      const textPosition = textPadMin + (textPadMax / (maxText / text.length))
+      const padPerCharacter = textPadMax / MAX_TEXT_LENGTH
+      const textPosition = textPadMin + ((MAX_TEXT_LENGTH - text.length) * padPerCharacter)
 
       const mergedImage = loadedImage
         .composite(hueRotatedCover, 0, 0)
