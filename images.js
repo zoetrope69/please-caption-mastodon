@@ -18,8 +18,8 @@ function createImage (keyword, text) {
     }
   
     
-    const randomImage = `https://source.unsplash.com/category/${encodeURIComponent(keyword)}/${WIDTH}x${HEIGHT}`
-    const defaultImage = `https://images.unsplash.com/photo-1446704477871-62a4972035cd?fit=crop&fm=jpg&h=500&q=50&w=339`
+    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
+    const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
     
     Promise.all([
       jimp.read(defaultImage),
