@@ -16,9 +16,10 @@ function createImage (keyword, text) {
     if (text.length > MAX_TEXT_LENGTH) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
+  
     
-    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}/all?random=${randomNumberBetween(0, 20)}`
-    const defaultImage = `https://loremflickr.com/cache/resized/defaultImage_${WIDTH}_${HEIGHT}_nofilter.jpg`
+    const randomImage = `https://source.unsplash.com/category/${encodeURIComponent(keyword)}/${WIDTH}x${HEIGHT}`
+    const defaultImage = `https://images.unsplash.com/photo-1446704477871-62a4972035cd?fit=crop&fm=jpg&h=500&q=50&w=339`
     
     Promise.all([
       jimp.read(defaultImage),
