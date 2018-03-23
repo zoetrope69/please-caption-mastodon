@@ -9,12 +9,12 @@ const HEIGHT = 500
 
 const MAX_TEXT_LENGTH = 30
 
-function createImage (keyword) {
+function createImage (keyword, text) {
   return new Promise((resolve, reject) => {
-    let text = `${keyword}`
     if (text.length > MAX_TEXT_LENGTH) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
+    
     const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}/all?random=${randomNumberBetween(0, 20)}`
 
     Promise.all([

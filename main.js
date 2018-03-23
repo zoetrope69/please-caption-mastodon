@@ -3,17 +3,17 @@ const express = require('express')
 
 const app = express()
 
-app.get('/:keyword', (request, response) => {
-  const { keyword } = request.params
+app.get('/:keyword/:text', (request, response) => {
+  const { keyword, text } = request.params
 
-  if (!keyword) {
-    console.error('No keyword sent')
+  if (!keyword || !text) {
+    console.error('No keyword/text sent')
 
     response.sendStatus(500)
 
   }
 
-  createImage(keyword).then(b64String => {
+  createImage(keyword, text).then(b64String => {
     const image = new Buffer(b64String.split(',')[1], 'base64');
 
     response.writeHead(200, {
