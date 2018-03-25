@@ -7,47 +7,57 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
-const TEXT_PAD = 30
 const MAX_TEXT_LENGTH = 55
 
 function createImage (keyword, text) {
   return new Promise((resolve, reject) => {
     keyword = keyword.toLowerCase()
-    
+
     if (text.length > MAX_TEXT_LENGTH) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
-  
-    
+
+
     const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
     const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
-    
+
+    const coverImage = randomNumberBetween(0, 1) === 0 ? (
+      'goosebumps-cover.png'
+    ) : (
+      'goosebumps-cover-alt.png'
+    )
+
     Promise.all([
       jimp.read(defaultImage),
       jimp.read(randomImage),
-      jimp.read('goosebumps-cover.png'),
+      jimp.read(coverImage),
       jimp.loadFont(jimp.FONT_SANS_16_WHITE)
     ]).then(loadedAssets => {
       const [defaultImage, loadedImage, goosebumpsImage, font] = loadedAssets
-      
+
       const comparisonBetweenImageAndDefaultImage = jimp.distance(defaultImage, loadedImage)
       const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
       if (isDefaultImage) {
         return reject(`No image found for keyword: ${keyword} (${comparisonBetweenImageAndDefaultImage})`)
       }
-      
+
       const huePosition = randomNumberBetween(0, 360)
       const hueRotatedCover = goosebumpsImage.color([
         { apply: 'hue', params: [huePosition] }
       ])
+
+      const textPadMin = 30
+      const textPadMax = 130
+      const padPerCharacter = textPadMax / MAX_TEXT_LENGTH
+      const textPosition = textPadMin + ((MAX_TEXT_LENGTH - text.length) * padPerCharacter)
 
       const mergedImage = loadedImage
         .posterize(6)
         .composite(hueRotatedCover, 0, 0)
 
       const textOnImage = mergedImage
-        .print(font, TEXT_PAD, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
+        .print(font, textPosition, HEIGHT - 47.5, text.toUpperCase(), WIDTH)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
