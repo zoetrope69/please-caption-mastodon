@@ -7,7 +7,7 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
-const MAX_TEXT_LENGTH = 30
+const MAX_TEXT_LENGTH = 55
 
 function createImage (keyword, text) {
   return new Promise((resolve, reject) => {
