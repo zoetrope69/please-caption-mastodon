@@ -7,6 +7,7 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
+const TEXT_PAD = 30
 const MAX_TEXT_LENGTH = 55
 
 function createImage (keyword, text) {
@@ -41,17 +42,12 @@ function createImage (keyword, text) {
         { apply: 'hue', params: [huePosition] }
       ])
 
-      const textPadMin = 30
-      const textPadMax = 130
-      const padPerCharacter = textPadMax / MAX_TEXT_LENGTH
-      const textPosition = textPadMin + ((MAX_TEXT_LENGTH - text.length) * padPerCharacter)
-
       const mergedImage = loadedImage
         .posterize(6)
         .composite(hueRotatedCover, 0, 0)
 
       const textOnImage = mergedImage
-        .print(font, textPosition, HEIGHT - 47.5, text.toUpperCase(), WIDTH)
+        .print(font, TEXT_PAD, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
