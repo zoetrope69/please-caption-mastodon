@@ -7,7 +7,7 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
-const LETTER_WIDTH = 12
+const LETTER_WIDTH = 9
 const TEXT_PAD = 30
 const MAX_TEXT_LENGTH = 55
 
@@ -59,10 +59,20 @@ function createImage (keyword, text) {
       const mergedImage = loadedImage
         .posterize(6)
         .composite(hueRotatedCover, 0, 0)
+      
+      let xPos = Math.floor((WIDTH - (TEXT_PAD * 2) - (LETTER_WIDTH * text.length)) / 2)
+      console.log(xPos, WIDTH, LETTER_WIDTH * text.length, text.length)
+      
+      if (xPos < TEXT_PAD) {
+        xPos = TEXT_PAD
+      }
+      
+      if (text.length > 40) {
+        xPos = 0
+      }
 
       const textOnImage = mergedImage
-        .print(font, 12, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
-        .print(font, 0, HEIGHT - 37.5, text.toUpperCase(), WIDTH - TEXT_PAD)
+        .print(font, xPos, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
