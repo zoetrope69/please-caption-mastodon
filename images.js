@@ -9,15 +9,23 @@ function measureText(font, text) {
   let textWidth = 0
   
   for (var i = 0; i < text.length; i++) {
-      if (!font.chars[text[i]]) {
-      }
-        textWidth += font.chars[text[i]].xoffset
-              + (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
-              + (font.chars[text[i]].xadvance || 0);
-      }
+    const textCharacter = text[i]
+    const textCharacterAfter = text[i]
+    
+    const fontCharacter = font.chars(textCharacter)
+    
+    if (!font.chars[text[i]]) {
+      continue
+    }
+    
+    textWidth += fontCharacter.xoffset
+    
+    if (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
+      
+    + (font.chars[text[i]].xadvance || 0);
   }
   
-  return x
+  return textWidth
 }
 
 const WIDTH = 339
@@ -34,6 +42,7 @@ function createImage (keyword, text) {
     if (text.length > MAX_TEXT_LENGTH) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
+    text = text.toUpperCase()
 
     // const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
     const randomImage = `https://fillmurray.com/${WIDTH}/${HEIGHT}`
@@ -80,8 +89,8 @@ function createImage (keyword, text) {
         .posterize(6)
         .composite(hueRotatedCover, 0, 0)
       
-      let textXPosition = Math.floor((WIDTH - TEXT_PAD - (LETTER_WIDTH * text.length)) / 2)
-      
+      let textXPosition = Math.floor((WIDTH / 2) - (measureText(font, text) / 2))
+      console.log(textXPosition, TEXT_PAD)
       const textXPositionTooLow = textXPosition < TEXT_PAD
       const textIsTooLong = text.length > MAX_TEXT_LENGTH
       if (textXPositionTooLow || textIsTooLong) {
@@ -91,7 +100,7 @@ function createImage (keyword, text) {
       const textYPosition = Math.floor(HEIGHT - textYBuffer)
 
       const textOnImage = mergedImage
-        .print(font, textXPosition, textYPosition, text.toUpperCase(), WIDTH - textXPosition)
+        .print(font, textXPosition, textYPosition, text, WIDTH)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
