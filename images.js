@@ -7,6 +7,7 @@ function randomNumberBetween(min, max) {
 const WIDTH = 339
 const HEIGHT = 500
 
+const LETTER_WIDTH = 12
 const TEXT_PAD = 30
 const MAX_TEXT_LENGTH = 55
 
@@ -18,8 +19,10 @@ function createImage (keyword, text) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
 
-    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
-    const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
+    // const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
+    const randomImage = `https://fillmurray.com/${WIDTH}/${HEIGHT}`
+    // const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
+    const defaultImage = `https://fillmurray.com/${WIDTH}2/${HEIGHT}`
 
     const coverImage = randomNumberBetween(0, 1) === 0 ? (
       'goosebumps-cover.png'
@@ -58,7 +61,8 @@ function createImage (keyword, text) {
         .composite(hueRotatedCover, 0, 0)
 
       const textOnImage = mergedImage
-        .print(font, TEXT_PAD, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
+        .print(font, 12, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
+        .print(font, 0, HEIGHT - 37.5, text.toUpperCase(), WIDTH - TEXT_PAD)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
