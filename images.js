@@ -8,7 +8,7 @@ const WIDTH = 339
 const HEIGHT = 500
 
 const LETTER_WIDTH = 9
-const TEXT_PAD = 30
+const TEXT_PAD = LETTER_WIDTH * 5
 const MAX_TEXT_LENGTH = 55
 
 function createImage (keyword, text) {
@@ -19,11 +19,11 @@ function createImage (keyword, text) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
 
-    // const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
-    const randomImage = `https://fillmurray.com/${WIDTH}/${HEIGHT}`
-    // const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
-    const defaultImage = `https://fillmurray.com/${WIDTH}2/${HEIGHT}`
+    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
+    const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
 
+    const isAltCover =
+    
     const coverImage = randomNumberBetween(0, 1) === 0 ? (
       'goosebumps-cover.png'
     ) : (
@@ -60,19 +60,18 @@ function createImage (keyword, text) {
         .posterize(6)
         .composite(hueRotatedCover, 0, 0)
       
-      let xPos = Math.floor((WIDTH - (TEXT_PAD * 2) - (LETTER_WIDTH * text.length)) / 2)
-      console.log(xPos, WIDTH, LETTER_WIDTH * text.length, text.length)
+      let textXPosition = Math.floor((WIDTH - TEXT_PAD - (LETTER_WIDTH * text.length)) / 2)
       
-      if (xPos < TEXT_PAD) {
-        xPos = TEXT_PAD
+      const textXPositionTooLow = textXPosition < TEXT_PAD
+      const textIsTooLong = text.length > 40
+      if (textXPositionTooLow || textIsTooLong) {
+        textXPosition = TEXT_PAD
       }
       
-      if (text.length > 40) {
-        xPos = 0
-      }
+      const textYPosition = HEIGHT - 47.5
 
       const textOnImage = mergedImage
-        .print(font, xPos, HEIGHT - 47.5, text.toUpperCase(), WIDTH - TEXT_PAD)
+        .print(font, textXPosition, textYPosition, text.toUpperCase(), WIDTH - textXPosition)
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
