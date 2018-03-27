@@ -12,17 +12,21 @@ function measureText(font, text) {
     const textCharacter = text[i]
     const textCharacterAfter = text[i]
     
-    const fontCharacter = font.chars(textCharacter)
+    const fontCharacter = font.chars[textCharacter]
     
-    if (!font.chars[text[i]]) {
+    if (!fontCharacter) {
       continue
     }
     
     textWidth += fontCharacter.xoffset
     
-    if (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
+    if (font.kernings[textCharacter] && font.kernings[textCharacter][textCharacterAfter]) {
+      textWidth += font.kernings[text[i]][textCharacterAfter]
+    }
       
-    + (font.chars[text[i]].xadvance || 0);
+    if (fontCharacter.xadvance) {
+      textWidth += fontCharacter.xadvance
+    }
   }
   
   return textWidth
@@ -44,10 +48,8 @@ function createImage (keyword, text) {
     }
     text = text.toUpperCase()
 
-    // const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
-    const randomImage = `https://fillmurray.com/${WIDTH}/${HEIGHT}`
-    // const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
-    const defaultImage = `https://fillmurray.com/${WIDTH-1}/${HEIGHT-1}`
+    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
+    const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
 
     const isAltCover = randomNumberBetween(0, 1) === 0
     
@@ -90,17 +92,24 @@ function createImage (keyword, text) {
         .composite(hueRotatedCover, 0, 0)
       
       let textXPosition = Math.floor((WIDTH / 2) - (measureText(font, text) / 2))
-      console.log(textXPosition, TEXT_PAD)
+
       const textXPositionTooLow = textXPosition < TEXT_PAD
-      const textIsTooLong = text.length > MAX_TEXT_LENGTH
-      if (textXPositionTooLow || textIsTooLong) {
+      if (textXPositionTooLow) {
         textXPosition = TEXT_PAD
+      }
+      
+      const textIsTooLong = text.length > MAX_TEXT_LENGTH
+      if (textIsTooLong) {
+        textXPosition += TEXT_PAD
       }
       
       const textYPosition = Math.floor(HEIGHT - textYBuffer)
 
-      const textOnImage = mergedImage
-        .print(font, textXPosition, textYPosition, text, WIDTH)
+      const textOnImage = mergedImage.print(
+        font,
+        textXPosition, textYPosition,
+        text, WIDTH - textXPosition
+      )
 
       const outputPath = 'output.' + textOnImage.getExtension()
 
