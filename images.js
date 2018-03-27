@@ -4,11 +4,27 @@ function randomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+// from https://github.com/oliver-moran/jimp/issues/216
+function measureText(font, text) {
+  let textWidth = 0
+  
+  for (var i = 0; i < text.length; i++) {
+      if (!font.chars[text[i]]) {
+      }
+        textWidth += font.chars[text[i]].xoffset
+              + (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
+              + (font.chars[text[i]].xadvance || 0);
+      }
+  }
+  
+  return x
+}
+
 const WIDTH = 339
 const HEIGHT = 500
 
 const LETTER_WIDTH = 9
-const TEXT_PAD = LETTER_WIDTH * 5
+const TEXT_PAD = LETTER_WIDTH * 4.5
 const MAX_TEXT_LENGTH = 55
 
 function createImage (keyword, text) {
@@ -19,22 +35,26 @@ function createImage (keyword, text) {
       text = text.substring(0, MAX_TEXT_LENGTH) + '...'
     }
 
-    const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
-    const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
+    // const randomImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/${encodeURIComponent(keyword)}?random=${randomNumberBetween(0, 20)}`
+    const randomImage = `https://fillmurray.com/${WIDTH}/${HEIGHT}`
+    // const defaultImage = `https://loremflickr.com/${WIDTH}/${HEIGHT}/somethingthatwouldnevercomebackwithanything`
+    const defaultImage = `https://fillmurray.com/${WIDTH-1}/${HEIGHT-1}`
 
-    const isAltCover =
+    const isAltCover = randomNumberBetween(0, 1) === 0
     
-    const coverImage = randomNumberBetween(0, 1) === 0 ? (
-      'goosebumps-cover.png'
-    ) : (
+    const coverImage = isAltCover ? (
       'goosebumps-cover-alt.png'
+    ) : (
+      'goosebumps-cover.png'
     )
     
-    const font = coverImage === 'goosebumps-cover-alt.png' ? (
+    const font = isAltCover ? (
       jimp.FONT_SANS_16_BLACK
     ) : (
       jimp.FONT_SANS_16_WHITE
     )
+    
+    const textYBuffer = isAltCover ? 50 : 47
 
     Promise.all([
       jimp.read(defaultImage),
@@ -63,12 +83,12 @@ function createImage (keyword, text) {
       let textXPosition = Math.floor((WIDTH - TEXT_PAD - (LETTER_WIDTH * text.length)) / 2)
       
       const textXPositionTooLow = textXPosition < TEXT_PAD
-      const textIsTooLong = text.length > 40
+      const textIsTooLong = text.length > MAX_TEXT_LENGTH
       if (textXPositionTooLow || textIsTooLong) {
         textXPosition = TEXT_PAD
       }
       
-      const textYPosition = HEIGHT - 47.5
+      const textYPosition = Math.floor(HEIGHT - textYBuffer)
 
       const textOnImage = mergedImage
         .print(font, textXPosition, textYPosition, text.toUpperCase(), WIDTH - textXPosition)
