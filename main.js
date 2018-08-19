@@ -1,12 +1,13 @@
 const createImage = require('./js/images')
+const { getRandomBookKeywordAndTitle } = require('./js/bookTitles')
 const express = require('express')
-
-const { getRandomBookTitle } = require('./js/bookTitles')
 
 const app = express()
 
 app.get('/', (request, response) => {
-  getRandomBookTitle()
+  const { keyword, title } = getRandomBookKeywordAndTitle()
+  createImage(keyword, title).then(b64String => {})
+  
   response.sendStatus(200)
 })
 
