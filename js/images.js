@@ -1,4 +1,4 @@
-const jimp = require('jimp')
+const Jimp = require('jimp')
 
 function randomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
@@ -60,22 +60,22 @@ function createImage (keyword, text) {
     )
     
     const font = isAltCover ? (
-      jimp.FONT_SANS_16_BLACK
+      Jimp.FONT_SANS_16_BLACK
     ) : (
-      jimp.FONT_SANS_16_WHITE
+      Jimp.FONT_SANS_16_WHITE
     )
     
     const textYBuffer = isAltCover ? 50 : 47
 
     Promise.all([
-      jimp.read(defaultImage),
-      jimp.read(randomImage),
-      jimp.read(__dirname + '/images/' + coverImage),
-      jimp.loadFont(font)
+      Jimp.read(defaultImage),
+      Jimp.read(randomImage),
+      Jimp.read(__dirname + '/images/' + coverImage),
+      Jimp.loadFont(font)
     ]).then(loadedAssets => {
       const [defaultImage, loadedImage, goosebumpsImage, font] = loadedAssets
 
-      const comparisonBetweenImageAndDefaultImage = jimp.distance(defaultImage, loadedImage)
+      const comparisonBetweenImageAndDefaultImage = Jimp.distance(defaultImage, loadedImage)
       const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
       if (isDefaultImage) {
@@ -111,7 +111,13 @@ function createImage (keyword, text) {
         text, WIDTH - textXPosition
       )
 
-      textOnImage.writeAsync(__dirname + '/images/output.jpg').then(resolve).catch(reject)
+      textOnImage.write(__dirname + '/images/output.jpg', (err) => {
+        if (err) {
+          return reject(err)
+        }
+        
+        resolve()
+      })
     })
     .catch(err => {
       reject(err)

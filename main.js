@@ -4,11 +4,15 @@ const getRandomBookKeywordAndTitle = require('./js/bookTitles')
 const express = require('express')
 
 const app = express()
+app.get('/', (req, res) => {
+  const soqbotLink = '<a href="https://twitter.com/soqbot">@soqbot</a>';
+  res.status(200).send(soqbotLink);
+})
 
-app.get('/', (request, response) => {
+app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
   const { keyword, title } = getRandomBookKeywordAndTitle()
   createImage(keyword, title).then(() => {
-    return tootImage(`${title} #${keyword}`)
+    return tootImage(title)
   })
   .then(() => {
     return response.status(200).send('sent a toot!');
@@ -16,32 +20,6 @@ app.get('/', (request, response) => {
   .catch(error => {
     console.error('error:', error);
     return response.status(500).send(error);
-  })
-})
-
-app.get('/:keyword/:text', (request, response) => {
-  const { keyword, text } = request.params
-
-  if (!keyword || !text) {
-    console.error('No keyword/text sent')
-
-    response.status(500).send('No keyword/text sent')
-  }
-
-  createImage(keyword, text).then(b64String => {
-    const image = new Buffer(b64String.split(',')[1], 'base64');
-
-    response.writeHead(200, {
-      'Content-Type': 'image/png',
-      'Content-Length': image.length
-    })
-
-    response.end(image)
-  })
-  .catch(error => {
-    console.error(error)
-
-    response.status(500).send(error)
   })
 })
 
