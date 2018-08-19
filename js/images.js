@@ -70,7 +70,7 @@ function createImage (keyword, text) {
     Promise.all([
       jimp.read(defaultImage),
       jimp.read(randomImage),
-      jimp.read('../images/' + coverImage),
+      jimp.read(__dirname + '/images/' + coverImage),
       jimp.loadFont(font)
     ]).then(loadedAssets => {
       const [defaultImage, loadedImage, goosebumpsImage, font] = loadedAssets

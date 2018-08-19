@@ -10,6 +10,4 @@ function getRandomBookKeywordAndTitle () {
   return { keyword, title }
 }
 
-module.exports = {
-  getRandomBookKeywordAndTitle
-}
+module.exports = getRandomBookKeywordAndTitle

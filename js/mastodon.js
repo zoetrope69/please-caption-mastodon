@@ -6,11 +6,11 @@ const mastodonClient = new Mastodon({
   api_url: 'https://botsin.space/api/v1/', // optional, defaults to https://mastodon.social/api/v1/
 })
 
-function tootImage(b64content) {
-  return uploadImage(b64content).then(sendTweet);
+function tootImage(b64content, text) {
+  return uploadImage(b64content, text).then(createStatus);
 }
 
-function sendTweet(mediaIdStr) {
+function createStatus(mediaIdStr) {
   return new Promise((resolve, reject) => {
     var params = { status: '', media_ids: [mediaIdStr] }
     return mastodonClient.post('statuses', params, (err, data, response) => {
@@ -23,9 +23,9 @@ function sendTweet(mediaIdStr) {
   });
 }
 
-function uploadImage(b64content) {
+function uploadImage(b64content, text) {
   return new Promise((resolve, reject) => {
-    const temporaryFilePath = 'temporary.png'
+    const temporaryFilePath = 'temporary.jpeg'
     
     // TODO: is there a way to send the base64 string straight to the file param?
     fs.writeFile(temporaryFilePath, b64content, 'base64', (err) => {
@@ -33,7 +33,7 @@ function uploadImage(b64content) {
         return reject(err);
       }
     
-      const params = { file: fs.createReadStream(temporaryFilePath) };
+      const params = { file: fs.createReadStream(temporaryFilePath), description: text };
       return mastodonClient.post('media', params, (err, data, response) => {
         if (err) {
           return reject(err);
@@ -49,4 +49,4 @@ function uploadImage(b64content) {
   });
 }
 
-module.exports = tootImage;
+module.exports = tootImage

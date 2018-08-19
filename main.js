@@ -1,14 +1,24 @@
 const createImage = require('./js/images')
-const { getRandomBookKeywordAndTitle } = require('./js/bookTitles')
+const tootImage = require('./js/mastodon')
+const getRandomBookKeywordAndTitle = require('./js/bookTitles')
 const express = require('express')
 
 const app = express()
 
 app.get('/', (request, response) => {
   const { keyword, title } = getRandomBookKeywordAndTitle()
-  createImage(keyword, title).then(b64String => {})
-  
-  response.sendStatus(200)
+  createImage(keyword, title).then(b64String => {
+    console.log(b64String, 'hi')
+    return
+    // return tootImage(b64String, `${title} #keyword`)
+  })
+  .then(() => {
+    return response.status(200).send('sent a toot!');
+  })
+  .catch(error => {
+    console.error('error:', error);
+    return response.status(500).send(error);
+  })
 })
 
 app.get('/:keyword/:text', (request, response) => {
