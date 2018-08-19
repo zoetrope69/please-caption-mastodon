@@ -1,3 +1,4 @@
+const fs = require('fs')
 const Jimp = require('jimp')
 
 function randomNumberBetween(min, max) {
@@ -79,9 +80,9 @@ function createImage (keyword, text) {
       const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
       if (isDefaultImage) {
+        
         return reject(`No image found for keyword: ${keyword} (${comparisonBetweenImageAndDefaultImage})`)
       }
-
       const huePosition = randomNumberBetween(0, 360)
       const hueRotatedCover = goosebumpsImage.color([
         { apply: 'hue', params: [huePosition] }
