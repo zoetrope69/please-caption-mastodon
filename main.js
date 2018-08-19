@@ -4,15 +4,6 @@ const getRandomBookKeywordAndTitle = require('./js/bookTitles')
 const express = require('express')
 const app = express()
 
-require('./testwords')
-
-function getGooseBumpsBook() {
-  const { keyword, title } = getRandomBookKeywordAndTitle()
-  return createImage(keyword, title).then(() => {
-    return tootImage(title)
-  })
-}
-
 app.get('/', (request, response) => {
   const link = '<a href="https://botsin.space/@goosebumps">@goosebumps@botsin.space</a>'
   response.status(200).send(link);
