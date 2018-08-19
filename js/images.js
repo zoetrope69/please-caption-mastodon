@@ -80,6 +80,11 @@ function createImage (keyword, text) {
       const isDefaultImage = comparisonBetweenImageAndDefaultImage <= 0.1
 
       if (isDefaultImage) {
+        fs.appendFile('wordsthatdidntwork.txt', keyword + "\n", function (err) {
+          if (err) {
+            console.error(err)
+          }
+        })
         
         return reject(`No image found for keyword: ${keyword} (${comparisonBetweenImageAndDefaultImage})`)
       }
