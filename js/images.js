@@ -111,15 +111,7 @@ function createImage (keyword, text) {
         text, WIDTH - textXPosition
       )
 
-      const outputPath = 'output.' + textOnImage.getExtension()
-
-      textOnImage.getBase64(jimp.AUTO, (error, base64OfMergedImage) => {
-        if (error) {
-          return reject(error)
-        }
-
-        return resolve(base64OfMergedImage)
-      })
+      textOnImage.writeAsync(__dirname + '/images/output.jpg').then(resolve).catch(reject)
     })
     .catch(err => {
       reject(err)

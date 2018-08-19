@@ -6,8 +6,8 @@ const mastodonClient = new Mastodon({
   api_url: 'https://botsin.space/api/v1/', // optional, defaults to https://mastodon.social/api/v1/
 })
 
-function tootImage(b64content, text) {
-  return uploadImage(b64content, text).then(createStatus);
+function tootImage(text) {
+  return uploadImage(text).then(createStatus)
 }
 
 function createStatus(mediaIdStr) {
@@ -15,38 +15,30 @@ function createStatus(mediaIdStr) {
     var params = { status: '', media_ids: [mediaIdStr] }
     return mastodonClient.post('statuses', params, (err, data, response) => {
       if (err) {
-        return reject(err);
+        return reject(err)
       }
 
-      return resolve();
-    });
-  });
+      return resolve()
+    })
+  })
 }
 
-function uploadImage(b64content, text) {
+function uploadImage(text) {
   return new Promise((resolve, reject) => {
-    const temporaryFilePath = 'temporary.jpeg'
-    
-    // TODO: is there a way to send the base64 string straight to the file param?
-    fs.writeFile(temporaryFilePath, b64content, 'base64', (err) => {
+    const temporaryFilePath = __dirname + '/images/output.jpg'
+    const params = { file: fs.createReadStream(temporaryFilePath), description: text }
+    return mastodonClient.post('media', params, (err, data, response) => {
       if (err) {
-        return reject(err);
+        return reject(err)
       }
-    
-      const params = { file: fs.createReadStream(temporaryFilePath), description: text };
-      return mastodonClient.post('media', params, (err, data, response) => {
-        if (err) {
-          return reject(err);
-        }
 
-        if (!data.id) {
-          return reject('No media ID to use for toot');
-        }
+      if (!data.id) {
+        return reject('No media ID to use for toot')
+      }
 
-        return resolve(data.id);
-      });
-    }); 
-  });
+      return resolve(data.id)
+    })
+  })
 }
 
 module.exports = tootImage

@@ -7,10 +7,8 @@ const app = express()
 
 app.get('/', (request, response) => {
   const { keyword, title } = getRandomBookKeywordAndTitle()
-  createImage(keyword, title).then(b64String => {
-    console.log(b64String, 'hi')
-    return
-    // return tootImage(b64String, `${title} #keyword`)
+  createImage(keyword, title).then(() => {
+    return tootImage(`${title} #${keyword}`)
   })
   .then(() => {
     return response.status(200).send('sent a toot!');
