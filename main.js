@@ -4,9 +4,10 @@ const getRandomBookKeywordAndTitle = require('./js/bookTitles')
 const express = require('express')
 
 const app = express()
-app.get('/', (req, res) => {
-  const soqbotLink = '<a href="https://twitter.com/soqbot">@soqbot</a>';
-  res.status(200).send(soqbotLink);
+
+app.get('/', (request, response) => {
+  const link = '<a href="https://botsin.space/@goosebumps">@goosebumps@botsin.space</a>'
+  response.status(200).send(link);
 })
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
