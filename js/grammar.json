@@ -1,9 +1,9 @@
 {
   "origin": [
-    "#[word:#words#]image#"
+    "#[word:#words#]result#"
   ],
   "result": [
-    "#word# #titles#"
+    "#word#;#titles#"
   ],
   "titles": [
     "#word.capitalize# 2000",

@@ -1,9 +1,12 @@
-const createImage = require('./images')
+const createImage = require('./js/images')
 const express = require('express')
+
+const { getRandomBookTitle } = require('./js/bookTitles')
 
 const app = express()
 
 app.get('/', (request, response) => {
+  getRandomBookTitle()
   response.sendStatus(200)
 })
 
