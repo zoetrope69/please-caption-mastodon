@@ -4,20 +4,24 @@ const { getRandomText } = require('./js/text')
 const express = require('express')
 const app = express()
 
+app.use(express.static('public'))
+
 app.get('/', (request, response) => {
-  response.status(200).send('the bots runs');
+  response.status(200)
 })
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
-  const imageFilePath = 'test.jpg'
+  const imageFilePath = __dirname + '/public/test.jpg'
   
   const text = getRandomText()
   
+  console.log('text')
+  
   createImage(imageFilePath).then(() => {
-    return tootImage(imageFilePath, title)
+    // return tootImage(imageFilePath, text)
   })
   .then(() => {
-    return response.status(200).send('sent a toot!');
+    return response.status(200).send('<img src="test.jpg" />');
   })
   .catch(error => {
     console.error('error:', error);
