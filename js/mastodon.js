@@ -25,8 +25,6 @@ function sendImageToMastodon(imageFilePath, imageDescription, text) {
 function createStatus(mediaIdStr, status) {
   return new Promise((resolve, reject) => {
     const params = { status, media_ids: [mediaIdStr] }
-      
-      console.log(params)
     return mastodonClient.post('statuses', params, (err, data, response) => {
       if (err) {
         return reject(err)
@@ -39,7 +37,6 @@ function createStatus(mediaIdStr, status) {
 
 function uploadImage(filePath, description) {
   return new Promise((resolve, reject) => {
-    console.log(filePath)
     const params = { file: fs.createReadStream(filePath), description }
     return mastodonClient.post('media', params, (err, data, response) => {
       if (err) {
