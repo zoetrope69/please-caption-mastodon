@@ -1,5 +1,4 @@
-const { createImage } = require('./js/images')
-// const { drawImage } = require('./js/draw')
+const { alterImage, drawImage } = require('./js/images')
 const { sendImageToMastodon } = require('./js/mastodon')
 const { getRandomText } = require('./js/text')
 const express = require('express')
@@ -12,18 +11,21 @@ app.get('/', (request, response) => {
 })
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
-  const imageFilePath = __dirname + '/public/test.jpg'
+  const alterImageFilePath = __dirname + '/public/test.jpg'
   const drawImageFilePath = __dirname + '/public/draw-test.png'
   const imageDescription = "It's a grey random image"
   const text = getRandomText()
   
-  // createImage(imageFilePath)
-    // .then(() => {
+  return alterImage(alterImageFilePath)
+    .then(() => {
+      return sendImageToMastodon(alterImageFilePath, imageDescription, text)
+    })
+    .then(() => {
       return drawImage(drawImageFilePath)
-    // })
-    // .then(() => {
-      // return sendImageToMastodon(imageFilePath, imageDescription, text)
-    // })
+    })
+    .then(() => {
+      return sendImageToMastodon(drawImageFilePath, imageDescription, text)
+    })
     .then(() => {
       return response.status(200).send('<img src="draw-test.png" /><img src="test.jpg" />');
     })

@@ -46,8 +46,6 @@ function uploadImage(filePath, description) {
       if (!data.id) {
         return reject('No media ID to use for toot')
       }
-      
-      console.log(data.id)
 
       return resolve(data.id)
     })
