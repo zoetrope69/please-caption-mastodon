@@ -1,18 +1,20 @@
-const createImage = require('./js/images')
+const { createImage } = require('./js/images')
 const tootImage = require('./js/mastodon')
-const getRandomBookKeywordAndTitle = require('./js/bookTitles')
+const { getRandomText } = require('./js/text')
 const express = require('express')
 const app = express()
 
 app.get('/', (request, response) => {
-  const link = '<a href="https://botsin.space/@goosebumps">@goosebumps@botsin.space</a>'
-  response.status(200).send(link);
+  response.status(200).send('the bots runs');
 })
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
-  const { keyword, title } = getRandomBookKeywordAndTitle()
-  createImage(keyword, title).then(() => {
-    return tootImage(title)
+  const imageFilePath = 'test.jpg'
+  
+  const text = getRandomText()
+  
+  createImage(imageFilePath).then(() => {
+    return tootImage(imageFilePath, title)
   })
   .then(() => {
     return response.status(200).send('sent a toot!');

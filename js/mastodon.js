@@ -1,9 +1,19 @@
+const {
+  MASTODON_ACCESS_TOKEN,
+  MASTODON_API_URL
+} = process.env
+
+if (!MASTODON_ACCESS_TOKEN || !MASTODON_API_URL) {
+  console.error('Missing environment variables from Mastodon. See README')
+  process.exit(1)
+}
+
 const fs = require('fs')
 const Mastodon = require('mastodon-api')
 const mastodonClient = new Mastodon({
-  access_token: process.env.MASTODON_ACCESS_TOKEN,
+  access_token: MASTODON_ACCESS_TOKEN,
   timeout_ms: 60 * 1000,  // optional HTTP request timeout to apply to all requests.
-  api_url: 'https://botsin.space/api/v1/', // optional, defaults to https://mastodon.social/api/v1/
+  api_url: MASTODON_API_URL
 })
 
 function tootImage(text) {
