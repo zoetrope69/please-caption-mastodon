@@ -2,7 +2,7 @@ const fs = require('fs')
 const Jimp = require('jimp')
 
 function createImage (filePath) {
-  return Jimp.read('https://fillmurray.com/500/500.jpg')
+  return Jimp.read('http://lorempixel.com/500/500/')
     .then(lenna => {
         return lenna
             .resize(256, 256) // resize

@@ -16,7 +16,7 @@ const mastodonClient = new Mastodon({
   api_url: MASTODON_API_URL
 })
 
-function tootImage(imageFilePath, imageDescription, text) {
+function sendImageToMastodon(imageFilePath, imageDescription, text) {
   return uploadImage(imageFilePath, imageDescription).then(imageId => {
     createStatus(imageId, text)
   })
@@ -24,7 +24,9 @@ function tootImage(imageFilePath, imageDescription, text) {
 
 function createStatus(mediaIdStr, status) {
   return new Promise((resolve, reject) => {
-    var params = { status, media_ids: [mediaIdStr] }
+    const params = { status, media_ids: [mediaIdStr] }
+      
+      console.log(params)
     return mastodonClient.post('statuses', params, (err, data, response) => {
       if (err) {
         return reject(err)
@@ -37,6 +39,7 @@ function createStatus(mediaIdStr, status) {
 
 function uploadImage(filePath, description) {
   return new Promise((resolve, reject) => {
+    console.log(filePath)
     const params = { file: fs.createReadStream(filePath), description }
     return mastodonClient.post('media', params, (err, data, response) => {
       if (err) {
@@ -46,6 +49,8 @@ function uploadImage(filePath, description) {
       if (!data.id) {
         return reject('No media ID to use for toot')
       }
+      
+      console.log(data.id)
 
       return resolve(data.id)
     })
@@ -53,5 +58,5 @@ function uploadImage(filePath, description) {
 }
 
 module.exports = {
-  tootImage
+  sendImageToMastodon
 }
