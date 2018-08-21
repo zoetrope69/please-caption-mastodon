@@ -1,4 +1,5 @@
 const { createImage } = require('./js/images')
+const { drawImage } = require('./js/draw')
 const { sendImageToMastodon } = require('./js/mastodon')
 const { getRandomText } = require('./js/text')
 const express = require('express')
@@ -15,11 +16,12 @@ app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
   const imageDescription = "It's a grey random image"
   const text = getRandomText()
   
-  createImage(imageFilePath).then(() => {
-    return sendImageToMastodon(imageFilePath, imageDescription, text)
-  })
+  drawImage()
+  // createImage(imageFilePath).then(() => {
+    // return sendImageToMastodon(imageFilePath, imageDescription, text)
+  // })
   .then(() => {
-    return response.status(200).send('<img src="test.jpg" />');
+    return response.status(200).send('<img src="test-public.png" />');
   })
   .catch(error => {
     console.error('error:', error);
