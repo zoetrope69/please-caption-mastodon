@@ -39,25 +39,30 @@ function doesMessageHaveUnCaptionedImages(message) {
 }
 
 function listenOnTimelineForMessages() {
-  console.log('hi')
-  const accountId = '23920'
-  
-  Mastodon.getAuthorizationUrl(MASTODON_CLIENT_KEY, MASTODON_CLIENT_SECRET, MASTODON_API_URL, null, 'https://example.com').then(console.log).catch(console.error)
-  // Mastodon.getAccessToken(MASTODON_CLIENT_KEY, MASTODON_CLIENT_SECRET, MASTODON_ACCESS_TOKEN, MASTODON_API_URL).then(console.log).catch(console.error)
-  // mastodonClient.get('accounts/23920/followers', {}).then(resp => console.log('a', resp.data)).catch(console.error)
-  
-  
-//   const listener = mastodonClient.stream('streaming/user')
+  mastodonClient.get('accounts/verify_credentials', {})
+    .then(resp => {
+      const accountId = resp.data.id
+      console.log(accountId)
+      const followerIds = mastodonClient.get(`accounts/${accountId}/followers`, {})
+        .then(resp => resp.data)
+        .then(followers => followers.map(follower => follower.id))
+      
+      return followerIds
+    })
+    .then(followerIds => {
+      const listener = mastodonClient.stream('streaming/user')
 
-//   listener.on('message', (message) => {
-//     console.log('message received')
-    
-//     if (doesMessageHaveUnCaptionedImages(message)) {
-//       console.log(message)
-//     }
-//   })
+      listener.on('message', (message) => {
+        console.log('message received')
 
-//   listener.on('error', err => console.log(err))
+        if (doesMessageHaveUnCaptionedImages(message)) {
+          console.log(message)
+        }
+      })
+
+      listener.on('error', err => console.log(err))
+    })
+    .catch(console.error)
 }
 
 listenOnTimelineForMessages()
