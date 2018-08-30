@@ -16,11 +16,25 @@ const mastodonClient = new Mastodon({
   api_url: MASTODON_API_URL
 })
 
-function sendImageToMastodon(imageFilePath, imageDescription, text) {
-  return uploadImage(imageFilePath, imageDescription).then(imageId => {
-    createStatus(imageId, text)
-  })
-}
+const listener = mastodonClient.stream('streaming/user')
+ 
+listener.on('message', (message) => {
+  console.log('message received')
+  if (message.event === 'update') {
+    const mediaAttachments = message.data.media_attachments
+    const hasMediaAttachents = mediaAttachments.length === 0
+    
+    const atleastOneAttachmentDoesntHaveACaption = mediaAttachments.some(mediaAttachment => {
+      console.log(mediaAttachment)
+      const doesntHaveACaption = mediaAttachment.description === null
+      return doesntHaveACaption
+    })
+    
+    console.log(atleastOneAttachmentDoesntHaveACaption)
+  }
+})
+ 
+listener.on('error', err => console.log(err))
 
 function createStatus(mediaIdStr, status) {
   return new Promise((resolve, reject) => {
@@ -35,23 +49,4 @@ function createStatus(mediaIdStr, status) {
   })
 }
 
-function uploadImage(filePath, description) {
-  return new Promise((resolve, reject) => {
-    const params = { file: fs.createReadStream(filePath), description }
-    return mastodonClient.post('media', params, (err, data, response) => {
-      if (err) {
-        return reject(err)
-      }
-
-      if (!data.id) {
-        return reject('No media ID to use for toot')
-      }
-
-      return resolve(data.id)
-    })
-  })
-}
-
-module.exports = {
-  sendImageToMastodon
-}
+module.exports = {}
