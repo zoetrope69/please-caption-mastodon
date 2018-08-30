@@ -19,10 +19,6 @@ const mastodonClient = new Mastodon({
 })
 
 function doesMessageHaveUnCaptionedImages(message) {
-  if (message.event !== 'update') {
-    return false
-  }
-  
   const mediaAttachments = message.data.media_attachments
   const hasMediaAttachments = mediaAttachments.length > 0
 
@@ -42,7 +38,7 @@ function listenOnTimelineForMessages() {
   mastodonClient.get('accounts/verify_credentials', {})
     .then(resp => {
       const accountId = resp.data.id
-      console.log(accountId)
+
       const followerIds = mastodonClient.get(`accounts/${accountId}/followers`, {})
         .then(resp => resp.data)
         .then(followers => followers.map(follower => follower.id))
@@ -54,6 +50,10 @@ function listenOnTimelineForMessages() {
 
       listener.on('message', (message) => {
         console.log('message received')
+
+        if (message.event !== 'update') {
+          return false
+        }
 
         if (doesMessageHaveUnCaptionedImages(message)) {
           console.log(message)
