@@ -16,25 +16,41 @@ const mastodonClient = new Mastodon({
   api_url: MASTODON_API_URL
 })
 
-const listener = mastodonClient.stream('streaming/user')
- 
-listener.on('message', (message) => {
-  console.log('message received')
-  if (message.event === 'update') {
-    const mediaAttachments = message.data.media_attachments
-    const hasMediaAttachents = mediaAttachments.length === 0
-    
-    const atleastOneAttachmentDoesntHaveACaption = mediaAttachments.some(mediaAttachment => {
-      console.log(mediaAttachment)
-      const doesntHaveACaption = mediaAttachment.description === null
-      return doesntHaveACaption
-    })
-    
-    console.log(atleastOneAttachmentDoesntHaveACaption)
+function doesMessageHaveUnCaptionedImages(message) {
+  if (message.event !== 'update') {
+    return false
   }
-})
- 
-listener.on('error', err => console.log(err))
+  
+  const mediaAttachments = message.data.media_attachments
+  const hasMediaAttachments = mediaAttachments.length > 0
+
+  if (!hasMediaAttachments) {
+    return false
+  }
+
+  const atleastOneAttachmentDoesntHaveACaption = mediaAttachments.some(mediaAttachment => {
+    const doesntHaveACaption = mediaAttachment.description === null
+    return doesntHaveACaption
+  })
+
+  return atleastOneAttachmentDoesntHaveACaption
+}
+
+function listenOnTimelineForMessages() {
+  const listener = mastodonClient.stream('streaming/user')
+
+  listener.on('message', (message) => {
+    console.log('message received')
+    
+    if (doesMessageHaveUnCaptionedImages(message)) {
+      console.log(message)
+    }
+  })
+
+  listener.on('error', err => console.log(err))
+}
+
+listenOnTimelineForMessages()
 
 function createStatus(mediaIdStr, status) {
   return new Promise((resolve, reject) => {
