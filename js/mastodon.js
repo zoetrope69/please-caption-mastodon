@@ -37,6 +37,10 @@ function doesMessageHaveUnCaptionedImages(message) {
 }
 
 function listenOnTimelineForMessages() {
+  console.log('hi')
+  const accountId = '23920'
+  mastodonClient.get(`accounts/${accountId}/followers`, {}).then(resp => console.log(resp.data)).catch(console.error)
+  
   const listener = mastodonClient.stream('streaming/user')
 
   listener.on('message', (message) => {
