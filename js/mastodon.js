@@ -24,13 +24,17 @@ function getStatuses (accountId) {
 
 const accountId = 69164
 
-function sendPrivateMessage (inReplyToId, username) {
+function sendPrivateStatus (inReplyToId, username) {
   const params = {
     in_reply_to_id: inReplyToId,
     status: `${username} ${getRandomText()}`,
     visibility: 'direct'
   }
   return mastodonClient.post('statuses', params).then(resp => resp.data)
+}
+
+function deleteStatus(id) {
+  return mastodonClient.delete(`statuses/${id}`).then(resp => resp.data)
 }
 
 function followUser (accountId) {
@@ -114,13 +118,16 @@ function sendMessagesToTimeline() {
     console.log('Message', message)
     
     if (message.event === 'delete') {
-      getStatuses(accountId)
-        .then(statuses => {
-          return statuses.filter(status => status.in_reply_to_id === null)
-        })
-        .then(repliedToStatuses => {
-          repliedToStatuses.for
-        })
+      const messageId = message.data
+      
+      getStatuses(accountId).then(statuses => {
+        const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
+        if (!statusBotRepliedTo) {
+          return console.info('Couldnt find message we replied to')
+        }
+
+        deleteStatus(statusBotRepliedTo.id).then(console.log).catch(console.error)
+      })
     }
     
     if (message.event === 'update') {
@@ -136,7 +143,7 @@ function sendMessagesToTimeline() {
       const messageId = message.data.id
       const username = '@' + message.data.account.acct
 
-      sendPrivateMessage(messageId, username).then(console.log).catch(console.error)
+      sendPrivateStatus(messageId, username).then(console.log).catch(console.error)
     }
   })
 

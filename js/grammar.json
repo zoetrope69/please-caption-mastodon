@@ -3,15 +3,15 @@
     "#words#"
   ],
   "words": [
-    "please don't forget to caption your tweets!",
-    "hey, this tweet's images don't all have alt text!",
-    "psst, you missed the alt text in this tweet",
-    "this tweet's images don't have alt text, please add some next time!",
-    "visually-impaired people may have trouble seeing this tweet, please add captions!",
-    "please remember to caption your images, it makes twitter more accessible!",
+    "please don't forget to caption your toots!",
+    "hey, this toot's images don't all have alt text!",
+    "psst, you missed the alt text in this toot",
+    "this toot's images don't have alt text, please add some next time!",
+    "visually-impaired people may have trouble seeing this toot, please add captions!",
+    "please remember to caption your images, it makes mastodon more accessible!",
     "hey, please add alt text to your images next time",
-    "this tweet is pretty cool, but you know what's even cooler? alt text",
-    "help make twitter more accessible by adding descriptions to your images!"
+    "this toot is pretty cool, but you know what's even cooler? alt text",
+    "help make mastodon more accessible by adding descriptions to your images!"
   ]
 }
 
