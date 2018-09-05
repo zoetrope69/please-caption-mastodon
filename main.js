@@ -1,5 +1,4 @@
 require('./js/mastodon')
-const { getRandomText } = require('./js/text')
 const express = require('express')
 const app = express()
 

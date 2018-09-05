@@ -17,14 +17,15 @@ const mastodonClient = new Mastodon({
   timeout_ms: 60 * 1000,  // optional HTTP request timeout to apply to all requests.
   api_url: MASTODON_API_URL
 })
+const { getRandomText } = require('./text')
 
-function sendPrivateMessage (inReplyToId) {
+function sendPrivateMessage (inReplyToId, username) {
   const params = {
     in_reply_to_id: inReplyToId,
-    status: 'testing',
+    status: `${username} ${getRandomText()}`,
     visibility: 'direct'
   }
-  return mastodonClient.post('statuses', params)
+  return mastodonClient.post('statuses', params).then(resp => resp.data)
 }
 
 function followUser (accountId) {
@@ -107,13 +108,22 @@ function sendMessagesToTimeline() {
     console.log('Message received')
 
     if (message.event !== 'update') {
-      return false
+      return
     }
 
-    if (doesMessageHaveUnCaptionedImages(message)) {
-      const messageId = message.data.id
-      sendPrivateMessage(messageId).then(console.log).catch(console.error)
+    if (!doesMessageHaveUnCaptionedImages(message)) {
+      return
     }
+    
+    const missingData = message.data && message.data.account
+    if (!missingData) {
+      return
+    }
+    
+    const messageId = message.data.id
+    const username = '@' + message.data.account.acct
+
+    sendPrivateMessage(messageId, username).then(console.log).catch(console.error)
   })
 
   listener.on('error', err => console.log(err))
