@@ -7,13 +7,12 @@
   ],
   "words": [
     "Please don't forget to caption your toots!",
-    "Hey, this toot's images don't all have alt text!",
-    "Psst, you missed the alt text in this toot",
-    "This toot's images don't have alt text, please add some next time!",
-    "Visually-impaired people may have trouble seeing this toot, please add captions!",
-    "Please remember to caption your images, it makes Mastodon more accessible!",
-    "Hey, please add alt text to your images next time",
-    "This toot is pretty cool, but you know what's even cooler? alt text",
+    "Hey, this toot's images don't all have descriptions!",
+    "Psst, you missed the descriptions in this toot",
+    "This toot's images don't have descriptions, please add some next time!",
+    "Blind and/or partially sighted people may have trouble woth this toot, please add captions!",
+    "Please remember to caption your images. It makes Mastodon more accessible!",
+    "Hey, please add descriptions to your images next time",
     "Help make Mastodon more accessible by adding descriptions to your images!"
   ]
 }
