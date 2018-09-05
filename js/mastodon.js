@@ -62,28 +62,27 @@ function getFollowersAndFollowing (accountId) {
 function compareFollowersToFollowing (accountId) {
   return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
     console.log('followerIds', followerIds)
-    console.log('followerIds', followerIds)
+    console.log('followingIds', followingIds)
     
     // follow users that are following the bot
-    const followNewUsersPromise = followerIds.filter(followerId => {
-      const isFollowingFollower = followingIds.includes(followerId)
+    const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
+      const isFollowingUser = followingIds.includes(followerId)
       
-      if (isFollowingFollower) {
-        return
-      }
-    }).map(followerId => {
-      return followUser(followerId)
+      return !isFollowingUser
     })
+    .map(followerId => {
+      return followUser(followerId)
+    }))
     
     // unfollow users the bot follows that arent following the bot
-    const unfollowOldUsersPromise = followingIds.filter(followingId => {
-      const botFollowsUserAndUserFollowsBack = followerIds.includes(followingId)
-      return !botFollowsUserAndUserFollowsBack
+    const unfollowOldUsersPromises = Promise.all(followingIds.filter(followingId => {
+      const isFollowedBackByUser = followerIds.includes(followingId)
+      return !isFollowedBackByUser
     }).map(followingId => {
       return unfollowUser(followingId)
-    })
+    }))
     
-    return Promise.all([followNewUsersPromise, unfollowOldUsersPromise]).then(results => {
+    return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
       const [ followedUsers, unfollowedUsers ] = results
       return { followedUsers, unfollowedUsers }
     })
