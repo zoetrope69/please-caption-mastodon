@@ -36,12 +36,12 @@ function doesMessageHaveUnCaptionedImages(message) {
 
 function followUser (accountId) {
   return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
-    .then(resp => resp.data)
+    .then(resp => resp.data.id)
 }
 
 function unfollowUser (accountId) {
-  return mastodonClient.post(`accounts/${accountId}/follow`, {})
-    .then(resp => resp.data)
+  return mastodonClient.post(`accounts/${accountId}/unfollow`, {})
+    .then(resp => resp.data.id)
 }
 
 function getFollowersAndFollowing (accountId) {
@@ -61,29 +61,32 @@ function getFollowersAndFollowing (accountId) {
 
 function compareFollowersToFollowing (accountId) {
   return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
-    console.log(followerIds, followingIds)
+    console.log('followerIds', followerIds)
+    console.log('followerIds', followerIds)
     
-    followerIds.forEach(followerId => {
+    // follow users that are following the bot
+    const followNewUsersPromise = followerIds.filter(followerId => {
       const isFollowingFollower = followingIds.includes(followerId)
       
-      if (!isFollowingFollower) {
-      
+      if (isFollowingFollower) {
+        return
       }
-      
-      console.log('isFollowingFollower', isFollowingFollower, followerId)
+    }).map(followerId => {
+      return followUser(followerId)
     })
     
-    followingIds.forEach(followingId => {
-      const isntFollowingFoller = followerIds.includes(followingId)
-      
-      if (!isFollowerOfFollowing) {
-        unfollowUser(followingId).then(console.log).catch(console.error)
-      }
-      
-      console.log('isFollowerOfFollowing', isFollowerOfFollowing, followingId)
+    // unfollow users the bot follows that arent following the bot
+    const unfollowOldUsersPromise = followingIds.filter(followingId => {
+      const botFollowsUserAndUserFollowsBack = followerIds.includes(followingId)
+      return !botFollowsUserAndUserFollowsBack
+    }).map(followingId => {
+      return unfollowUser(followingId)
     })
     
-    return 'hi'
+    return Promise.all([followNewUsersPromise, unfollowOldUsersPromise]).then(results => {
+      const [ followedUsers, unfollowedUsers ] = results
+      return { followedUsers, unfollowedUsers }
+    })
   })
 }
 
