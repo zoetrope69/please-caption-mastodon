@@ -17,6 +17,13 @@ const mastodonClient = new Mastodon({
 })
 const { getRandomText } = require('./text')
 
+function getStatuses (accountId) {
+  return mastodonClient.get(`accounts/${accountId}/statuses`)
+    .then(resp => resp.data)
+}
+
+const accountId = 69164
+
 function sendPrivateMessage (inReplyToId, username) {
   const params = {
     in_reply_to_id: inReplyToId,
@@ -71,6 +78,7 @@ function compareFollowersToFollowing () {
   return mastodonClient.get('accounts/verify_credentials', {})
     .then(resp => resp.data.id)
     .then(accountId => {
+      console.log('account id', accountId)
       return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
         // follow users that are following the bot
         const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
@@ -104,23 +112,32 @@ function sendMessagesToTimeline() {
 
   listener.on('message', (message) => {
     console.log('Message', message)
-    if (message.event !== 'update') {
-      return
-    }
-
-    if (!doesMessageHaveUnCaptionedImages(message)) {
-      return
+    
+    if (message.event === 'delete') {
+      getStatuses(accountId)
+        .then(statuses => {
+          return statuses.filter(status => status.in_reply_to_id === null)
+        })
+        .then(repliedToStatuses => {
+          repliedToStatuses.for
+        })
     }
     
-    const missingData = message.data && message.data.account
-    if (!missingData) {
-      return
-    }
-    
-    const messageId = message.data.id
-    const username = '@' + message.data.account.acct
+    if (message.event === 'update') {
+      if (!doesMessageHaveUnCaptionedImages(message)) {
+        return
+      }
 
-    sendPrivateMessage(messageId, username).then(console.log).catch(console.error)
+      const missingData = message.data && message.data.account
+      if (!missingData) {
+        return
+      }
+
+      const messageId = message.data.id
+      const username = '@' + message.data.account.acct
+
+      sendPrivateMessage(messageId, username).then(console.log).catch(console.error)
+    }
   })
 
   listener.on('error', err => console.error(err))
