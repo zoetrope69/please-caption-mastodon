@@ -34,10 +34,42 @@ function doesMessageHaveUnCaptionedImages(message) {
   return atleastOneAttachmentDoesntHaveACaption
 }
 
+function getFollowersAndFollowing (accountId) {
+  const followerIdsPromise = mastodonClient.get(`accounts/${accountId}/followers`, {})
+        .then(resp => resp.data)
+        .then(users => users.map(user => user.id))
+
+  const followingIdsPromise = mastodonClient.get(`accounts/${accountId}/following`, {})
+        .then(resp => resp.data)
+        .then(users => users.map(user => user.id))
+  
+  return Promise.all([followerIdsPromise, followingIdsPromise]).then(results => {
+    const [followerIds, followingIds] = results
+    return { followerIds, followingIds }
+  })
+}
+
+function compareFollowersToFollowing (accountId) {
+  return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
+    console.log(followerIds, followingIds)
+    followerIds.forEach(followerId => {
+      const isFollowingFollower = followingIds.includes(followerId)
+      
+      console.log('isFollowingFollower', isFollowingFollower)
+    })
+    
+    return 'hi'
+  })
+}
+
+compareFollowersToFollowing(69164).then(console.log).catch(console.error)
+
 function listenOnTimelineForMessages() {
   mastodonClient.get('accounts/verify_credentials', {})
     .then(resp => {
       const accountId = resp.data.id
+      
+      console.log(accountId)
 
       const followerIds = mastodonClient.get(`accounts/${accountId}/followers`, {})
         .then(resp => resp.data)
