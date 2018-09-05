@@ -1,4 +1,10 @@
-require('./js/mastodon')
+const {
+  compareFollowersToFollowing,
+  sendMessagesToTimeline
+} = require('./js/mastodon')
+
+sendMessagesToTimeline()
+
 const express = require('express')
 const app = express()
 
@@ -9,12 +15,13 @@ app.get('/', (request, response) => {
 })
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
-  const text = getRandomText()
-  
-    return response.status(200)
-    // console.error('error:', error)
-
-    // return response.status(500).send(error)
+  compareFollowersToFollowing().then(result => {
+    console.log(result)
+    return response.status(20)
+  }).catch(error => {
+    console.error(error)
+    return response.status(500).send(error)
+  })
 })
 
 const listener = app.listen(process.env.PORT, () => {

@@ -1,8 +1,6 @@
 const {
   MASTODON_ACCESS_TOKEN,
-  MASTODON_API_URL,
-  MASTODON_CLIENT_KEY,
-  MASTODON_CLIENT_SECRET
+  MASTODON_API_URL
 } = process.env
 
 if (!MASTODON_ACCESS_TOKEN || !MASTODON_API_URL) {
@@ -105,8 +103,7 @@ function sendMessagesToTimeline() {
   console.log('Listening on the timeline for messages')
 
   listener.on('message', (message) => {
-    console.log('Message received')
-
+    console.log('Message', message)
     if (message.event !== 'update') {
       return
     }
@@ -126,11 +123,8 @@ function sendMessagesToTimeline() {
     sendPrivateMessage(messageId, username).then(console.log).catch(console.error)
   })
 
-  listener.on('error', err => console.log(err))
+  listener.on('error', err => console.error(err))
 }
-
-// compareFollowersToFollowing().then(console.log).catch(console.error)
-sendMessagesToTimeline()
 
 module.exports = {
   compareFollowersToFollowing,
