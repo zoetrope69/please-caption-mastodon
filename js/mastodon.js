@@ -34,6 +34,16 @@ function doesMessageHaveUnCaptionedImages(message) {
   return atleastOneAttachmentDoesntHaveACaption
 }
 
+function followUser (accountId) {
+  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+    .then(resp => resp.data)
+}
+
+function unfollowUser (accountId) {
+  return mastodonClient.post(`accounts/${accountId}/follow`, {})
+    .then(resp => resp.data)
+}
+
 function getFollowersAndFollowing (accountId) {
   const followerIdsPromise = mastodonClient.get(`accounts/${accountId}/followers`, {})
         .then(resp => resp.data)
@@ -52,10 +62,25 @@ function getFollowersAndFollowing (accountId) {
 function compareFollowersToFollowing (accountId) {
   return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
     console.log(followerIds, followingIds)
+    
     followerIds.forEach(followerId => {
       const isFollowingFollower = followingIds.includes(followerId)
       
-      console.log('isFollowingFollower', isFollowingFollower)
+      if (!isFollowingFollower) {
+      
+      }
+      
+      console.log('isFollowingFollower', isFollowingFollower, followerId)
+    })
+    
+    followingIds.forEach(followingId => {
+      const isntFollowingFoller = followerIds.includes(followingId)
+      
+      if (!isFollowerOfFollowing) {
+        unfollowUser(followingId).then(console.log).catch(console.error)
+      }
+      
+      console.log('isFollowerOfFollowing', isFollowerOfFollowing, followingId)
     })
     
     return 'hi'
