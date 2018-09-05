@@ -41,8 +41,12 @@ function deleteStatus (id) {
 }
 
 function followUser (accountId) {
-  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
-    .then(resp => resp.data.id)
+  // disable following for now
+  console.info('would follow but disabled')
+  return Promise.resolve('test')
+  
+  // return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+    // .then(resp => resp.data.id)
 }
 
 function unfollowUser (accountId) {
@@ -119,7 +123,6 @@ function sendMessagesToTimeline() {
     console.info('Message recieved: ', message.event)
     
     if (message.event === 'notification') {
-      console.log(message.data)
       if (message.data.type !== 'follow') {
         return
       }
@@ -127,7 +130,7 @@ function sendMessagesToTimeline() {
       const userId = message.data.account.id
       
       followUser(userId).then(result => {
-        console.info('Followed back: ', result.id)
+        console.info('Followed back: ', result)
       }).catch(console.error)
     }
     
