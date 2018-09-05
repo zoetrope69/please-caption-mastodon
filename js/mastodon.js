@@ -17,12 +17,15 @@ const mastodonClient = new Mastodon({
 })
 const { getRandomText } = require('./text')
 
+function getAccountId () {
+  return mastodonClient.get('accounts/verify_credentials', {})
+      .then(resp => resp.data.id)
+}
+
 function getStatuses (accountId) {
   return mastodonClient.get(`accounts/${accountId}/statuses`)
     .then(resp => resp.data)
 }
-
-const accountId = 69164
 
 function sendPrivateStatus (inReplyToId, username) {
   const params = {
@@ -33,7 +36,7 @@ function sendPrivateStatus (inReplyToId, username) {
   return mastodonClient.post('statuses', params).then(resp => resp.data)
 }
 
-function deleteStatus(id) {
+function deleteStatus (id) {
   return mastodonClient.delete(`statuses/${id}`).then(resp => resp.data)
 }
 
@@ -79,66 +82,79 @@ function getFollowersAndFollowing (accountId) {
 }
 
 function compareFollowersToFollowing () {
-  return mastodonClient.get('accounts/verify_credentials', {})
-    .then(resp => resp.data.id)
-    .then(accountId => {
-      console.log('account id', accountId)
-      return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
-        // follow users that are following the bot
-        const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
-          const isFollowingUser = followingIds.includes(followerId)
+  console.info('Handling new and old followers')
+  return getAccountId().then(accountId => {
+    return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
+      // follow users that are following the bot
+      const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
+        const isFollowingUser = followingIds.includes(followerId)
 
-          return !isFollowingUser
-        })
-        .map(followerId => {
-          return followUser(followerId)
-        }))
-
-        // unfollow users the bot follows that arent following the bot
-        const unfollowOldUsersPromises = Promise.all(followingIds.filter(followingId => {
-          const isFollowedBackByUser = followerIds.includes(followingId)
-          return !isFollowedBackByUser
-        }).map(followingId => {
-          return unfollowUser(followingId)
-        }))
-
-        return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
-          const [ followedUsers, unfollowedUsers ] = results
-          return { followedUsers, unfollowedUsers }
-        })
+        return !isFollowingUser
       })
+      .map(followerId => {
+        return followUser(followerId)
+      }))
+
+      // unfollow users the bot follows that arent following the bot
+      const unfollowOldUsersPromises = Promise.all(followingIds.filter(followingId => {
+        const isFollowedBackByUser = followerIds.includes(followingId)
+        return !isFollowedBackByUser
+      }).map(followingId => {
+        return unfollowUser(followingId)
+      }))
+
+      return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
+        const [ followedUsers, unfollowedUsers ] = results
+        return { followedUsers, unfollowedUsers }
+      })
+    })
   })
 }
 
 function sendMessagesToTimeline() {
   const listener = mastodonClient.stream('streaming/user')
-  console.log('Listening on the timeline for messages')
+  console.info('Listening on the timeline for messages')
 
   listener.on('message', (message) => {
-    console.log('Message recieved: ', message.event)
+    console.info('Message recieved: ', message.event)
+    
+    if (message.event === 'notification') {
+      console.log(message.data)
+      if (message.data.type !== 'follow') {
+        return
+      }
+
+      const userId = message.data.account.id
+      
+      followUser(userId).then(result => {
+        console.info('Followed back: ', result.id)
+      }).catch(console.error)
+    }
     
     if (message.event === 'delete') {
       const messageId = message.data.toString()
-      console.log('Message ID: ', messageId)
+      console.info('Message ID: ', messageId)
       
-      getStatuses(accountId).then(statuses => {
-        statuses.forEach(status => {
-          console.log(status.id, status.in_reply_to_id, messageId, status.in_reply_to_id === messageId)
+      getAccountId().then(accountId => {
+        getStatuses(accountId).then(statuses => {
+          statuses.forEach(status => {
+            console.info(status.id, status.in_reply_to_id, messageId, status.in_reply_to_id === messageId)
+          })
+
+          const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
+          if (!statusBotRepliedTo) {
+            return console.info('Couldnt find message we replied to')
+          }
+
+          deleteStatus(statusBotRepliedTo.id).then(result => {
+            console.info('Deleted status: ', result.id)
+          }).catch(console.error)
         })
-                    
-        const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
-        if (!statusBotRepliedTo) {
-          return console.info('Couldnt find message we replied to')
-        }
-        
-        deleteStatus(statusBotRepliedTo.id).then(result => {
-          console.info('Deleted status: ', result.id)
-        }).catch(console.error)
       })
     }
     
     if (message.event === 'update') {
-      console.log('Message ID: ', message.data.id)
+      console.info('Message ID: ', message.data.id)
       
       if (!doesMessageHaveUnCaptionedImages(message)) {
         return

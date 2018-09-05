@@ -14,12 +14,10 @@ app.get('/', (request, response) => {
   response.sendStatus(200)
 })
 
-// compareFollowersToFollowing()
-
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
   compareFollowersToFollowing().then(result => {
-    console.log(result)
-    return response.status(20)
+    console.log('result', result)
+    return response.sendStatus(200)
   }).catch(error => {
     console.error(error)
     return response.status(500).send(error)
