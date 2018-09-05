@@ -115,28 +115,31 @@ function sendMessagesToTimeline() {
   console.log('Listening on the timeline for messages')
 
   listener.on('message', (message) => {
-    console.log('Message', message)
+    console.log('Message recieved: ', message.event)
     
     if (message.event === 'delete') {
-      const messageId = message.data
+      const messageId = message.data.toString()
+      console.log('Message ID: ', messageId)
       
       getStatuses(accountId).then(statuses => {
-        console.log(statuses.map(status => {
-          return { id: status.id, in_reply_to_id: status.in_reply_to_id }
-        }))
+        statuses.forEach(status => {
+          console.log(status.id, status.in_reply_to_id, messageId, status.in_reply_to_id === messageId)
+        })
                     
         const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
         if (!statusBotRepliedTo) {
           return console.info('Couldnt find message we replied to')
         }
-
-        console.log(messageId, statusBotRepliedTo.id)
         
-        deleteStatus(statusBotRepliedTo.id).then(console.log).catch(console.error)
+        deleteStatus(statusBotRepliedTo.id).then(result => {
+          console.info('Deleted status: ', result.id)
+        }).catch(console.error)
       })
     }
     
     if (message.event === 'update') {
+      console.log('Message ID: ', message.data.id)
+      
       if (!doesMessageHaveUnCaptionedImages(message)) {
         return
       }
@@ -149,7 +152,9 @@ function sendMessagesToTimeline() {
       const messageId = message.data.id
       const username = '@' + message.data.account.acct
 
-      sendPrivateStatus(messageId, username).then(console.log).catch(console.error)
+      sendPrivateStatus(messageId, username).then(result => {
+        console.info('Sent message to: ', result.id)
+      }).catch(console.error)
     }
   })
 
