@@ -1,9 +1,9 @@
 {
   "origin": [
-    "#words# #emojis# \n\n #deleteredraft#"
+    "#words# #emojis# \n\n#deleteredraft#"
   ],
   "emojis": [
-    "📷", "📸", "🤳", "", "", "", ""
+    "📷", "📸", "🤳", "🎥", "📹", "", "", "", "", ""
   ],
   "words": [
     "Please don't forget to caption the media in your toots!",
@@ -18,7 +18,7 @@
   "deleteredraft": [
     "Not too late to delete and re-draft.",
     "You can choose 'Delete & re-draft' and add them.",
-    "If you want to add them easier, choose 'Delete & re-draft'."
+    "If you want to add them, choose 'Delete & re-draft'."
   ]
 }
 
