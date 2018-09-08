@@ -41,12 +41,8 @@ function deleteStatus (id) {
 }
 
 function followUser (accountId) {
-  // disable following for now
-  console.info('would follow but disabled')
-  return Promise.resolve('test')
-  
-  // return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
-    // .then(resp => resp.data.id)
+  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+    .then(resp => resp.data.id)
 }
 
 function unfollowUser (accountId) {
