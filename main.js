@@ -1,7 +1,7 @@
 const {
   compareFollowersToFollowing,
   sendMessagesToTimeline
-} = require('./js/mastodon')
+} = require('./js/bot')
 
 sendMessagesToTimeline()
 
