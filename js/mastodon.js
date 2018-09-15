@@ -25,6 +25,11 @@ function getStatuses (accountId) {
     .then(resp => resp.data)
 }
 
+function getStatus () {
+  mastodonClient.get('statuses/100731198608782043', {}).then(resp => resp.data).then(console.log).catch(console.error)
+}
+getStatus()
+
 function sendStatus (params) {
   return mastodonClient.post('statuses', params).then(resp => resp.data)
 }
