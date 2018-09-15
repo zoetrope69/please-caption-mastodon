@@ -25,11 +25,6 @@ function getStatuses (accountId) {
     .then(resp => resp.data)
 }
 
-function getStatus () {
-  mastodonClient.get('statuses/100731198608782043', {}).then(resp => resp.data).then(console.log).catch(console.error)
-}
-getStatus()
-
 function sendStatus (params) {
   return mastodonClient.post('statuses', params).then(resp => resp.data)
 }
@@ -51,6 +46,10 @@ function unfollowUser (accountId) {
 function getFollowersAndFollowing (accountId) {
   const followerIdsPromise = mastodonClient.get(`accounts/${accountId}/followers`, {})
         .then(resp => resp.data)
+        .then(users => {
+          console.log(users)
+          return users
+        })
         .then(users => users.map(user => user.id))
 
   const followingIdsPromise = mastodonClient.get(`accounts/${accountId}/following`, {})
