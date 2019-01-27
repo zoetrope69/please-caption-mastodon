@@ -59,11 +59,21 @@ function getFollowersAndFollowing (accountId) {
 }
 
 
-getAccountId().then(accountId => getFollowersAndFollowing(accountId)).then(result => {
-  console.log('fllowers', result.followerIds.length)
-  console.log('following', result.followingIds.length)
+const parseLinkHeader = require('parse-link-header');
+
+getAccountId().then(accountId => {
+  mastodonClient.get(`accounts/${accountId}/followers`, {}).then(data => {
+    console.log(data.data.length)
+    console.log(parseLinkHeader(data.resp.headers.link))
+  })
 })
 
+function paginatedMastodonResponse(url) {
+  mastodonClient.get(`accounts/${accountId}/followers`, {}).then(data => {
+    console.log(data.data.length)
+    console.log(parseLinkHeader(data.resp.headers.link))
+  })
+}
 
 
 module.exports = {
