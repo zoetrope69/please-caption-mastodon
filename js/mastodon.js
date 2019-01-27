@@ -8,12 +8,38 @@ if (!MASTODON_ACCESS_TOKEN || !MASTODON_API_URL) {
   process.exit(1)
 }
 
+const parseLinkHeader = require('parse-link-header');
 const Mastodon = require('mastodon-api')
 const mastodonClient = new Mastodon({
   access_token: MASTODON_ACCESS_TOKEN,
   timeout_ms: 60 * 1000,  // optional HTTP request timeout to apply to all requests.
   api_url: MASTODON_API_URL
 })
+
+function paginatedMastodonResponse(url, allData = []) {
+  const MAX_PAGE_COUNT = 10
+  let pageCount = 0
+  
+  return mastodonClient.get(url).then(data => {
+    const newAllData = allData.concat(data.data)
+    
+    if (pageCount > MAX_PAGE_COUNT) {
+      return newAllData
+    }
+    
+    const parsedLinkHeader = data.resp.headers.link && parseLinkHeader(data.resp.headers.link)
+    if (!parsedLinkHeader) {
+      return newAllData
+    }
+    
+    if (!parsedLinkHeader.next) {
+      return newAllData
+    }
+    
+    const newUrl = parsedLinkHeader.next.url
+    return paginatedMastodonResponse(newUrl, newAllData)
+  })
+}
 
 function getAccountId () {
   return mastodonClient.get('accounts/verify_credentials', {})
@@ -55,40 +81,6 @@ function getFollowersAndFollowing (accountId) {
     return { followerIds, followingIds }
   })
 }
-
-
-const parseLinkHeader = require('parse-link-header');
-
-getAccountId().then(accountId => {
-  const url = `accounts/${accountId}/statuses`
-  return paginatedMastodonResponse(url).then(results => results.length).then(console.log)
-})
-
-function paginatedMastodonResponse(url, allData = []) {
-  const MAX_PAGE_COUNT = 10
-  let pageCount = 0
-  
-  return mastodonClient.get(url).then(data => {
-    const newAllData = allData.concat(data.data)
-    
-    if (pageCount > MAX_PAGE_COUNT) {
-      return newAllData
-    }
-    
-    const parsedLinkHeader = data.resp.headers.link && parseLinkHeader(data.resp.headers.link)
-    if (!parsedLinkHeader) {
-      return newAllData
-    }
-    
-    if (!parsedLinkHeader.next) {
-      return newAllData
-    }
-    
-    const newUrl = parsedLinkHeader.next.url
-    return paginatedMastodonResponse(newUrl, newAllData)
-  })
-}
-
 
 module.exports = {
   mastodonClient,
