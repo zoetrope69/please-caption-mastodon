@@ -44,12 +44,10 @@ function unfollowUser (accountId) {
 }
 
 function getFollowersAndFollowing (accountId) {
-  const followerIdsPromise = mastodonClient.get(`accounts/${accountId}/followers`, {})
-        .then(resp => resp.data)
+  const followerIdsPromise = paginatedMastodonResponse(`accounts/${accountId}/followers`)
         .then(users => users.map(user => user.id))
 
-  const followingIdsPromise = mastodonClient.get(`accounts/${accountId}/following`, {})
-        .then(resp => resp.data)
+  const followingIdsPromise = paginatedMastodonResponse(`accounts/${accountId}/following`)
         .then(users => users.map(user => user.id))
   
   return Promise.all([followerIdsPromise, followingIdsPromise]).then(results => {
@@ -62,16 +60,32 @@ function getFollowersAndFollowing (accountId) {
 const parseLinkHeader = require('parse-link-header');
 
 getAccountId().then(accountId => {
-  mastodonClient.get(`accounts/${accountId}/followers`, {}).then(data => {
-    console.log(data.data.length)
-    console.log(parseLinkHeader(data.resp.headers.link))
-  })
+  const url = `accounts/${accountId}/statuses`
+  return paginatedMastodonResponse(url).then(results => results.length).then(console.log)
 })
 
-function paginatedMastodonResponse(url) {
-  mastodonClient.get(`accounts/${accountId}/followers`, {}).then(data => {
-    console.log(data.data.length)
-    console.log(parseLinkHeader(data.resp.headers.link))
+function paginatedMastodonResponse(url, allData = []) {
+  const MAX_PAGE_COUNT = 10
+  let pageCount = 0
+  
+  return mastodonClient.get(url).then(data => {
+    const newAllData = allData.concat(data.data)
+    
+    if (pageCount > MAX_PAGE_COUNT) {
+      return newAllData
+    }
+    
+    const parsedLinkHeader = data.resp.headers.link && parseLinkHeader(data.resp.headers.link)
+    if (!parsedLinkHeader) {
+      return newAllData
+    }
+    
+    if (!parsedLinkHeader.next) {
+      return newAllData
+    }
+    
+    const newUrl = parsedLinkHeader.next.url
+    return paginatedMastodonResponse(newUrl, newAllData)
   })
 }
 
