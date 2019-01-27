@@ -46,10 +46,6 @@ function unfollowUser (accountId) {
 function getFollowersAndFollowing (accountId) {
   const followerIdsPromise = mastodonClient.get(`accounts/${accountId}/followers`, {})
         .then(resp => resp.data)
-        .then(users => {
-          console.log(users)
-          return users
-        })
         .then(users => users.map(user => user.id))
 
   const followingIdsPromise = mastodonClient.get(`accounts/${accountId}/following`, {})
@@ -61,6 +57,14 @@ function getFollowersAndFollowing (accountId) {
     return { followerIds, followingIds }
   })
 }
+
+
+getAccountId().then(accountId => getFollowersAndFollowing(accountId)).then(result => {
+  console.log('fllowers', result.followerIds.length)
+  console.log('following', result.followingIds.length)
+})
+
+
 
 module.exports = {
   mastodonClient,
