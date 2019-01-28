@@ -11,7 +11,8 @@ const {
   
   followUser,
   unfollowUser,
-  getFollowersAndFollowing
+  getFollowersAndFollowing,
+  getRelationships
 } = require('./mastodon' )
 
 function sendPrivateStatus (inReplyToId, username) {
@@ -69,12 +70,25 @@ function compareFollowersToFollowing () {
   })
 }
 
-// mastodonClient.get('follow_requests').then(r => r.data).then(console.log)
-mastodonClient.get('accounts/relationships?id=87027').then(r => r.data).then(r => {
-  console.log('r', r)
-})
+removeUsersWhoShouldntBeSentAFollow([87027, 6066]).then(console.log)
+const removeUsersWhoShouldntBeSentAFollow = (ids) => {
+  return getRelationships(ids).then(accounts => {
+    // console.log('accounts', accounts)
 
-compareFollowersToFollowing()
+    const removeAlreadyFollowingOrRequestedUsers = accounts.filter(account => {
+      console.log('account', account)
+      const isFollowedBy = account.followed_by // might aswell double check this at this point 
+      const isntAlreadyRequestingToFollow = !account.requested
+      const isntAlreadyFollowing = !account.following
+      return isFollowedBy && isntAlreadyRequestingToFollow && isntAlreadyFollowing
+    })
+
+
+    console.log(removeAlreadyFollowingOrRequestedUsers.map(a => a.id))
+  })
+}
+
+// compareFollowersToFollowing()
 
 function sendMessagesToTimeline() {
   const listener = mastodonClient.stream('streaming/user')

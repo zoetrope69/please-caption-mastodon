@@ -86,6 +86,11 @@ function getFollowersAndFollowing (accountId) {
   })
 }
 
+function getRelationships (ids) {
+  return mastodonClient.get('accounts/relationships', { id: ids })
+    .then(resp => resp.data)
+}
+
 module.exports = {
   mastodonClient,
   
@@ -96,5 +101,6 @@ module.exports = {
   
   followUser,
   unfollowUser,
-  getFollowersAndFollowing
+  getFollowersAndFollowing,
+  getRelationships
 }
