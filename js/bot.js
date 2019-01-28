@@ -40,38 +40,7 @@ function doesMessageHaveUnCaptionedImages(message) {
   return atleastOneAttachmentDoesntHaveACaption
 }
 
-function compareFollowersToFollowing () {
-  console.info('Handling new and old followers')
-  return getAccountId().then(accountId => {
-    return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
-      // follow users that are following the bot
-      const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
-        const isFollowingUser = followingIds.includes(followerId)
-
-        return !isFollowingUser
-      })
-      .map(followerId => {
-        return followUser(followerId)
-      }))
-
-      // unfollow users the bot follows that arent following the bot
-      const unfollowOldUsersPromises = Promise.all(followingIds.filter(followingId => {
-        const isFollowedBackByUser = followerIds.includes(followingId)
-        return !isFollowedBackByUser
-      }).map(followingId => {
-        return unfollowUser(followingId)
-      }))
-
-      return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
-        const [ followedUsers, unfollowedUsers ] = results
-        return { followedUsers, unfollowedUsers }
-      })
-    })
-  })
-}
-
-
-const removeUsersWhoShouldntBeSentAFollow = (ids) => {
+function removeUsersWhoShouldntBeSentAFollow(ids) {
   return getRelationships(ids).then(accounts => {
     // console.log('accounts', accounts)
 
@@ -90,11 +59,52 @@ const removeUsersWhoShouldntBeSentAFollow = (ids) => {
   })
 }
 
-// 72290 zac
+function compareFollowersToFollowing () {
+  console.info('Handling new and old followers')
+  return getAccountId().then(accountId => {
+    return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
+      // follow users that are following the bot
+      // and also havent already been followed or followe request before
+      const followersWhoHaventBeenFollowedIds = followerIds.filter(followerId => {
+        const isFollowingUser = followingIds.includes(followerId)
 
+        return !isFollowingUser
+      })
+      console.log('followersWhoHaventBeenFollowedIds', followersWhoHaventBeenFollowedIds)
+      const followersWhoWeShouldFollowPromise = removeUsersWhoShouldntBeSentAFollow(
+        followersWhoHaventBeenFollowedIds
+      )
+      return followersWhoWeShouldFollowPromise.then(followersWhoWeShouldFollowIds => {
+        console.log('followersWhoWeShouldFollowIds', followersWhoWeShouldFollowIds)
+      
+        const followNewUsersPromises = Promise.all(
+          followersWhoWeShouldFollowIds.map(followerId => {
+            return followUser(followerId)
+          })
+        )
 
-removeUsersWhoShouldntBeSentAFollow([72290, 87027, 6066, 108752, 1554]).then(console.log)
-// compareFollowersToFollowing()
+        // unfollow users the bot follows that arent following the bot
+        const followingWhoHaveUnfollowedIds = followingIds.filter(followingId => {
+          const isFollowedBackByUser = followerIds.includes(followingId)
+          return !isFollowedBackByUser
+        })      
+        const unfollowOldUsersPromises = Promise.all(
+          followingWhoHaveUnfollowedIds.map(followingId => {
+            return unfollowUser(followingId)
+          })
+        )
+
+        return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
+          const [ followedUsers, unfollowedUsers ] = results
+          return { followedUsers, unfollowedUsers }
+        })
+      })
+    })
+  })
+}
+
+compareFollowersToFollowing()
+
 
 function sendMessagesToTimeline() {
   const listener = mastodonClient.stream('streaming/user')
