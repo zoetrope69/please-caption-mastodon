@@ -69,6 +69,13 @@ function compareFollowersToFollowing () {
   })
 }
 
+// mastodonClient.get('follow_requests').then(r => r.data).then(console.log)
+mastodonClient.get('accounts/relationships?id=87027').then(r => r.data).then(r => {
+  console.log('r', r)
+})
+
+compareFollowersToFollowing()
+
 function sendMessagesToTimeline() {
   const listener = mastodonClient.stream('streaming/user')
   console.info('Listening on the timeline for messages')
