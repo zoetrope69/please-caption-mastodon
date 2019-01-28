@@ -12,8 +12,6 @@ You can [follow the bot on @PleaseCaption@botsin.space](https://botsin.space/@Pl
 
 When you post any media (images and videos) without text descriptions it will respond with a message.
 
-![Example of a Mastodon status that is sent back from the bot](https://files.botsin.space/media_attachments/files/000/936/654/original/052bd5e9ae829242.jpeg)
-
 ## Installing the bot
 
 1. Install dependancies
