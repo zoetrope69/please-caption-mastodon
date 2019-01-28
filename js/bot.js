@@ -122,10 +122,6 @@ function sendMessagesToTimeline() {
       
       getAccountId().then(accountId => {
         getStatuses(accountId).then(statuses => {
-          statuses.forEach(status => {
-            console.info(status.id, status.in_reply_to_id, messageId, status.in_reply_to_id === messageId)
-          })
-
           const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
           if (!statusBotRepliedTo) {
             return console.info('Couldnt find message we replied to')

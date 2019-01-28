@@ -60,17 +60,13 @@ function deleteStatus (id) {
 }
 
 function followUser (accountId) {
-  console.log('following user:', accountId)
-  return Promise.resolve(accountId) // disable for now
-  // return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
-    // .then(resp => resp.data.id)
+  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+    .then(resp => resp.data.id)
 }
 
 function unfollowUser (accountId) {
-  console.log('unfollowing user:', accountId)
-  return Promise.resolve(accountId) // disable for now
-  // return mastodonClient.post(`accounts/${accountId}/unfollow`, {})
-  //   .then(resp => resp.data.id)
+  return mastodonClient.post(`accounts/${accountId}/unfollow`, {})
+    .then(resp => resp.data.id)
 }
 
 function getFollowersAndFollowing (accountId) {
