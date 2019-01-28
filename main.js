@@ -16,6 +16,7 @@ app.get('/', (request, response) => {
 
 app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
   compareFollowersToFollowing().then(result => {
+    console.log('result', result)
     return response.sendStatus(200)
   }).catch(error => {
     console.error(error)
