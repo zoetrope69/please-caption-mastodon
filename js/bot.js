@@ -42,18 +42,16 @@ function doesMessageHaveUnCaptionedImages(message) {
 
 function removeUsersWhoShouldntBeSentAFollow(ids) {
   return getRelationships(ids).then(accounts => {
-    // console.log('accounts', accounts)
-
-    const removeAlreadyFollowingOrRequestedUsers = accounts.filter(account => {
-      // console.log('account', account)
+    const removeUsers = accounts.filter(account => {
       const isFollowedBy = account.followed_by // might aswell double check this at this point 
       const isntAlreadyRequestingToFollow = !account.requested
       const isntAlreadyFollowing = !account.following
-      console.log(account.id, isFollowedBy, isntAlreadyRequestingToFollow, isntAlreadyFollowing)
-      return isFollowedBy && isntAlreadyRequestingToFollow && isntAlreadyFollowing
+      const isntMuted = !account.muting
+
+      return isFollowedBy && isntAlreadyRequestingToFollow && isntAlreadyFollowing && isntMuted
     })
 
-    const accountIds = removeAlreadyFollowingOrRequestedUsers.map(a => a.id)
+    const accountIds = removeUsers.map(a => a.id)
     
     return accountIds
   })
@@ -98,9 +96,6 @@ function compareFollowersToFollowing () {
     })
   })
 }
-
-compareFollowersToFollowing()
-
 
 function sendMessagesToTimeline() {
   const listener = mastodonClient.stream('streaming/user')

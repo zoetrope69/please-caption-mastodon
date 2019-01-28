@@ -75,11 +75,11 @@ function unfollowUser (accountId) {
 
 function getFollowersAndFollowing (accountId) {
   const followerIdsPromise = paginatedMastodonResponse(`accounts/${accountId}/followers`)
-        .then(users => users.filter(user => !user.moved))
-        .then(users => users.map(user => user.id))
+        .then(accounts => accounts.filter(account => !account.moved))
+        .then(accounts => accounts.map(account => account.id))
 
   const followingIdsPromise = paginatedMastodonResponse(`accounts/${accountId}/following`)
-        .then(users => users.map(user => user.id))
+        .then(accounts => accounts.map(account => account.id))
   
   return Promise.all([followerIdsPromise, followingIdsPromise]).then(results => {
     const [followerIds, followingIds] = results
