@@ -82,10 +82,6 @@ function getFollowersAndFollowing (accountId) {
   })
 }
 
-getAccountId().then(accountId => {
-paginatedMastodonResponse(`accounts/${accountId}/followers`).then(console.log)
-})
-
 module.exports = {
   mastodonClient,
   
