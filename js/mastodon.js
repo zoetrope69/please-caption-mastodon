@@ -60,8 +60,9 @@ function deleteStatus (id) {
 }
 
 function followUser (accountId) {
-  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
-    .then(resp => resp.data.id)
+  return Promise.resolve() // disable for now
+  // return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+    // .then(resp => resp.data.id)
 }
 
 function unfollowUser (accountId) {
