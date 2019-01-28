@@ -11,7 +11,8 @@ const {
   
   followUser,
   unfollowUser,
-  getFollowersAndFollowing
+  getFollowersAndFollowing,
+  getRelationships
 } = require('./mastodon' )
 
 function sendPrivateStatus (inReplyToId, username) {
@@ -39,27 +40,54 @@ function doesMessageHaveUnCaptionedImages(message) {
   return atleastOneAttachmentDoesntHaveACaption
 }
 
+function removeUsersWhoShouldntBeSentAFollow(ids) {
+  return getRelationships(ids).then(accounts => {
+    const removeUsers = accounts.filter(account => {
+      const isFollowedBy = account.followed_by // might aswell double check this at this point 
+      const isntAlreadyRequestingToFollow = !account.requested
+      const isntAlreadyFollowing = !account.following
+      const isntMuted = !account.muting
+
+      return isFollowedBy && isntAlreadyRequestingToFollow && isntAlreadyFollowing && isntMuted
+    })
+
+    const accountIds = removeUsers.map(a => a.id)
+    
+    return accountIds
+  })
+}
+
 function compareFollowersToFollowing () {
   console.info('Handling new and old followers')
   return getAccountId().then(accountId => {
     return getFollowersAndFollowing(accountId).then(({ followerIds, followingIds }) => {
       // follow users that are following the bot
-      const followNewUsersPromises = Promise.all(followerIds.filter(followerId => {
+      // and also havent already been followed or followe request before
+      const followersWhoHaventBeenFollowedIds = followerIds.filter(followerId => {
         const isFollowingUser = followingIds.includes(followerId)
-
         return !isFollowingUser
       })
-      .map(followerId => {
-        return followUser(followerId)
-      }))
+      const followersWhoWeShouldFollowPromise = removeUsersWhoShouldntBeSentAFollow(
+        followersWhoHaventBeenFollowedIds
+      )
+      const followNewUsersPromises = followersWhoWeShouldFollowPromise.then(followersWhoWeShouldFollowIds => {
+        return Promise.all(
+          followersWhoWeShouldFollowIds.map(followerId => {
+            return followUser(followerId)
+          })
+        )
+      })
 
       // unfollow users the bot follows that arent following the bot
-      const unfollowOldUsersPromises = Promise.all(followingIds.filter(followingId => {
+      const followingWhoHaveUnfollowedIds = followingIds.filter(followingId => {
         const isFollowedBackByUser = followerIds.includes(followingId)
         return !isFollowedBackByUser
-      }).map(followingId => {
-        return unfollowUser(followingId)
-      }))
+      })      
+      const unfollowOldUsersPromises = Promise.all(
+        followingWhoHaveUnfollowedIds.map(followingId => {
+          return unfollowUser(followingId)
+        })
+      )
 
       return Promise.all([followNewUsersPromises, unfollowOldUsersPromises]).then(results => {
         const [ followedUsers, unfollowedUsers ] = results
@@ -94,10 +122,6 @@ function sendMessagesToTimeline() {
       
       getAccountId().then(accountId => {
         getStatuses(accountId).then(statuses => {
-          statuses.forEach(status => {
-            console.info(status.id, status.in_reply_to_id, messageId, status.in_reply_to_id === messageId)
-          })
-
           const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
           if (!statusBotRepliedTo) {
             return console.info('Couldnt find message we replied to')
