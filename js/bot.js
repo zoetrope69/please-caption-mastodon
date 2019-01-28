@@ -70,24 +70,30 @@ function compareFollowersToFollowing () {
   })
 }
 
-removeUsersWhoShouldntBeSentAFollow([87027, 6066]).then(console.log)
+
 const removeUsersWhoShouldntBeSentAFollow = (ids) => {
   return getRelationships(ids).then(accounts => {
     // console.log('accounts', accounts)
 
     const removeAlreadyFollowingOrRequestedUsers = accounts.filter(account => {
-      console.log('account', account)
+      // console.log('account', account)
       const isFollowedBy = account.followed_by // might aswell double check this at this point 
       const isntAlreadyRequestingToFollow = !account.requested
       const isntAlreadyFollowing = !account.following
+      console.log(account.id, isFollowedBy, isntAlreadyRequestingToFollow, isntAlreadyFollowing)
       return isFollowedBy && isntAlreadyRequestingToFollow && isntAlreadyFollowing
     })
 
-
-    console.log(removeAlreadyFollowingOrRequestedUsers.map(a => a.id))
+    const accountIds = removeAlreadyFollowingOrRequestedUsers.map(a => a.id)
+    
+    return accountIds
   })
 }
 
+// 72290 zac
+
+
+removeUsersWhoShouldntBeSentAFollow([72290, 87027, 6066, 108752, 1554]).then(console.log)
 // compareFollowersToFollowing()
 
 function sendMessagesToTimeline() {
