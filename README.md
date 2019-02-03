@@ -8,7 +8,7 @@ Mastodon also lets you 'Delete & re-draft' toots so you can easily add the text 
 
 ## How does the bot work?
 
-You can [follow the bot on @PleaseCaption@botsin.space](https://botsin.space/@PleaseCaption).
+You can <a rel="me" href="https://botsin.space/@PleaseCaption">follow the bot on @PleaseCaption@botsin.space</a>.
 
 When you post any media (images and videos) without text descriptions it will respond with a message.
 
