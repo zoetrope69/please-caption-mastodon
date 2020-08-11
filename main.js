@@ -1,3 +1,4 @@
+const { CronJob } = require('cron')
 const express = require('express')
 const app = express()
 const {
@@ -7,26 +8,20 @@ const {
 
 sendMessagesToTimeline()
 
-const { CronJob } = require('cron')
-const job = new CronJob('* * * * * *', function() {
-  console.log('You will see this message every second');
-}, null, false, 'Europe/London')
-
-job.start();
+// every hour
+const job = new CronJob('0 * * * *', function() {
+  console.log('Cronjob triggered')
+  compareFollowersToFollowing().then(result => {
+    console.log('Compared successfully')
+  }).catch(error => {
+    console.error(error)
+  })
+}, null, true, 'Europe/London')
 
 app.use(express.static('public'))
 
 app.get('/', (request, response) => {
   response.sendStatus(200)
-})
-
-app.get('/' + process.env.BOT_ENDPOINT, (request, response) => {
-  compareFollowersToFollowing().then(result => {
-    return response.sendStatus(200)
-  }).catch(error => {
-    console.error(error)
-    return response.status(500).send(error)
-  })
 })
 
 const listener = app.listen(process.env.PORT, () => {

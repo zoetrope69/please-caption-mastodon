@@ -28,10 +28,5 @@ npm install
 
 + `MASTODON_API_URL` is the URL for the instance you're on.
 + `MASTODON_ACCESS_TOKEN` is the access token from the previous step
-+ `BOT_ENDPOINT` is the endpoint you'll be sending requests to to get it to run tasks
 
-3. Set-up script to ping bot endpoint.
-
-The bot will unfollow and follow users ever so often when you hit a specific endpoint. If your server is 'https://example.com' and your `BOT_ENDPOINT` is 'specialsecret' the URL would be 'https://example.com/specialsecret'.
-
-Then you can use something like [Uptime Robot](https://Uptimerobot.com) to send requests to that URL ever so often.
+4. Run the application!
