@@ -1,3 +1,5 @@
+const express = require('express')
+const app = express()
 const {
   compareFollowersToFollowing,
   sendMessagesToTimeline
@@ -5,8 +7,12 @@ const {
 
 sendMessagesToTimeline()
 
-const express = require('express')
-const app = express()
+const { CronJob } = require('cron')
+const job = new CronJob('* * * * * *', function() {
+  console.log('You will see this message every second');
+}, null, false, 'Europe/London')
+
+job.start();
 
 app.use(express.static('public'))
 
