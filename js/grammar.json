@@ -16,9 +16,9 @@
     "Help make Mastodon more accessible by adding descriptions to your media!"
   ],
   "deleteredraft": [
-    "Not too late to delete and re-draft.",
-    "You can choose 'Delete & re-draft' and add them.",
-    "If you want to add them, choose 'Delete & re-draft'."
+    "Not too late to delete and re-draft. Or, edit, remove and re-add media, and add captions.",
+    "You can choose 'Delete & re-draft' and add them, or if it's easier, 'Edit', remove and re-add the media.",
+    "If you want to add them, choose (1) 'Delete & re-draft' or (2) 'Edit', remove, then add."
   ]
 }
 
