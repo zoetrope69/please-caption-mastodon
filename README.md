@@ -4,13 +4,13 @@ Based on [a bot I used to use on Twitter called Please Caption](https://twitter.
 
 The difference with this bot is as you can send direct messages to statuses (toots) on Mastodon you can have a less spammy bot that messages privately.
 
-Mastodon also lets you 'Delete & re-draft' toots so you can easily add the text descriptions back in.
+Mastodon also lets you 'Delete & re-draft' toots so you can easily add the text descriptions back in. An alternative approach with Mastodon v4 is editing toots, but you have to remove the image and add it again before you can add text descriptions.
 
 ## How does the bot work?
 
 You can [follow the bot on @PleaseCaption@botsin.space](https://botsin.space/@PleaseCaption).
 
-When you post any media (images and videos) without text descriptions it will respond with a message.
+When you post any media (images and videos) without text descriptions, or boost such toots, it will respond with a message.
 
 ## Installing the bot
 
