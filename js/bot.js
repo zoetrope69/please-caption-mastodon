@@ -25,11 +25,11 @@ function sendPrivateStatus (inReplyToId, username, reblog) {
 }
 
 function doesMessageHaveUnCaptionedImages(message) {
-  if (message.data.reblog) {
-    return doesMessageHaveUnCaptionedImages(message.data.reblog)
+  if (message.reblog) {
+    return doesMessageHaveUnCaptionedImages(message.reblog)
   }
 
-  const mediaAttachments = message.data.media_attachments
+  const mediaAttachments = message.media_attachments
   const hasMediaAttachments = mediaAttachments.length > 0
 
   if (!hasMediaAttachments) {
@@ -141,7 +141,7 @@ function sendMessagesToTimeline() {
     if (message.event === 'update') {
       console.info('Message ID: ', message.data.id)
       
-      if (!doesMessageHaveUnCaptionedImages(message)) {
+      if (!doesMessageHaveUnCaptionedImages(message.data)) {
         return
       }
 
