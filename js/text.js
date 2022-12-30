@@ -1,10 +1,14 @@
 const tracery = require('tracery-grammar')
-const rawGrammar = require('./grammar.json')
-const processedGrammar = tracery.createGrammar(rawGrammar)
-processedGrammar.addModifiers(tracery.baseEngModifiers)
+const grammar = tracery.createGrammar(require('./grammar.json'))
+grammar.addModifiers(tracery.baseEngModifiers)
+const reblogGrammar = tracery.createGrammar(require('./reblogGrammar.json'))
+reblogGrammar.addModifiers(tracery.baseEngModifiers)
 
-function getRandomText () {
-  const text = processedGrammar.flatten("#origin#")
+function getRandomText (reblog) {
+  if (reblog) {
+    return reblogGrammar.flatten('#origin#')
+  }
+  const text = grammar.flatten('#origin#')
   return text
 }
 

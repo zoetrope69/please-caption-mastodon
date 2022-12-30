@@ -15,17 +15,21 @@ const {
   getRelationships
 } = require('./mastodon' )
 
-function sendPrivateStatus (inReplyToId, username) {
+function sendPrivateStatus (inReplyToId, username, reblog) {
   const params = {
     in_reply_to_id: inReplyToId,
-    status: `${username} ${getRandomText()}`,
+    status: `${username} ${getRandomText(reblog)}`,
     visibility: 'direct'
   }
   return sendStatus(params)
 }
 
 function doesMessageHaveUnCaptionedImages(message) {
-  const mediaAttachments = message.data.media_attachments
+  if (message.reblog) {
+    return doesMessageHaveUnCaptionedImages(message.reblog)
+  }
+
+  const mediaAttachments = message.media_attachments
   const hasMediaAttachments = mediaAttachments.length > 0
 
   if (!hasMediaAttachments) {
@@ -137,7 +141,7 @@ function sendMessagesToTimeline() {
     if (message.event === 'update') {
       console.info('Message ID: ', message.data.id)
       
-      if (!doesMessageHaveUnCaptionedImages(message)) {
+      if (!doesMessageHaveUnCaptionedImages(message.data)) {
         return
       }
 
@@ -146,10 +150,10 @@ function sendMessagesToTimeline() {
         return
       }
 
-      const messageId = message.data.id
+      const messageId = message.data.reblog ? message.data.reblog.id : message.data.id;
       const username = '@' + message.data.account.acct
 
-      sendPrivateStatus(messageId, username).then(result => {
+      sendPrivateStatus(messageId, username, message.data.reblog).then(result => {
         console.info('Sent message to: ', result.id)
       }).catch(console.error)
     }

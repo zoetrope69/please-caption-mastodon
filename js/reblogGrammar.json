@@ -1,0 +1,24 @@
+{
+  "origin": [
+    "#words# #emojis# \n\n#deleteredraft#"
+  ],
+  "emojis": [
+    "📷", "📸", "🤳", "🎥", "📹", "♻️", "🆙", "👆", "☝️", "", "", "", "", ""
+  ],
+  "words": [
+    "Oops, you boosted something without media captions!",
+    "Hey, your boosted toot's media don't all have descriptions!",
+    "Psst, you boosted something that's missing descriptions",
+    "Your boosted toot's media doesn't have descriptions, just so you know!",
+    "Blind and/or partially sighted people may have trouble with the toot you boosted",
+    "It makes Mastodon more accessible when media have captions. This boost doesn't."
+  ],
+  "deleteredraft": [
+    "The author can delete and re-draft. Or, edit, remove and re-add media, and add captions.",
+    "The author can choose 'Delete & re-draft' and add them, or if it's easier, 'Edit', remove and re-add the media.",
+    "If the author wants to add them, they can choose (1) 'Delete & re-draft' or (2) 'Edit', remove, then add."
+  ]
+}
+
+
+

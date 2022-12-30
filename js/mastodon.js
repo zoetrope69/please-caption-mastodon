@@ -60,7 +60,7 @@ function deleteStatus (id) {
 }
 
 function followUser (accountId) {
-  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: false })
+  return mastodonClient.post(`accounts/${accountId}/follow`, { reblogs: true })
     .then(resp => resp.data.id)
 }
 
