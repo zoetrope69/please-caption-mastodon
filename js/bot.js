@@ -13,7 +13,8 @@ const {
   unfollowUser,
   getFollowersAndFollowing,
   getRelationships
-} = require('./mastodon' )
+} = require('./mastodon')
+const { FAVOURITE_TOOT_TO_DELETE_STRING } = require('./text')
 
 function sendPrivateStatus (inReplyToId, username, reblog) {
   const params = {
@@ -102,13 +103,34 @@ function compareFollowersToFollowing () {
 }
 
 function processNotificationEvent(message) {
- const userId = message.data.account.id
+  const { status, account, type } = message.data
 
   // if a user follows the bot
-  if (message.data.type === 'follow') {
-    followUser(userId).then((result) => {
+  if (type === 'follow') {
+    followUser(account.id).then((result) => {
       console.info('Followed back: ', result)
-    }).catch(console.error)
+    })
+    .catch(console.error)
+  }
+
+  // if a user favourites the bot's toot
+  if (type === 'favourite') {
+
+    // check if it's a deletable toot
+    if (!status.content.includes(FAVOURITE_TOOT_TO_DELETE_STRING)) {
+      return
+    }
+
+    /*
+      check if the account that favourited owned
+      the toot that our bot had replied to
+    */
+    if (account.id === status.in_reply_to_account_id) {
+      // delete the bot's toot the user favourited
+      deleteStatus(status.id).then((result) => {
+        console.info('Deleted status via user favourite: ', result.id)
+      }).catch(console.error)
+    }
   }
 }
 
