@@ -21,14 +21,14 @@ npm install
 ```
 
 2. Create a Mastodon application and get the access token
-> You can do this from the settings in Mastodon. There's a 'Development' section. Give the bot all permissions.
 
+   > You can do this from the settings in Mastodon. There's a 'Development' section. Give the bot all permissions.
 
 3. Add environment variables
 
-+ `MASTODON_API_URL` is the URL for the instance you're on.
-+ `MASTODON_ACCESS_TOKEN` is the access token from the previous step
-+ `BOT_ENDPOINT` is the endpoint you'll be sending requests to to get it to run tasks
+- `MASTODON_API_URL` is the URL for the instance you're on.
+- `MASTODON_ACCESS_TOKEN` is the access token from the previous step
+- `BOT_ENDPOINT` is the endpoint you'll be sending requests to to get it to run tasks
 
 3. Set-up script to ping bot endpoint.
 

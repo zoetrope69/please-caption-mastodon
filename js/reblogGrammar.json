@@ -1,10 +1,6 @@
 {
-  "origin": [
-    "#words# #emojis# \n\n#deleteredraft#"
-  ],
-  "emojis": [
-    "📷", "📸", "🤳", "🎥", "📹", "♻️", "🆙", "👆", "☝️", "", "", "", "", ""
-  ],
+  "origin": ["#words# #emojis# \n\n#deleteredraft#"],
+  "emojis": ["📷", "📸", "🤳", "🎥", "📹", "♻️", "🆙", "👆", "☝️", "", "", ""],
   "words": [
     "Oops, you boosted something without media captions!",
     "Hey, your boosted toot's media don't all have descriptions!",
@@ -19,6 +15,3 @@
     "If the author wants to add them, they can choose (1) 'Delete & re-draft' or (2) 'Edit', remove, then add."
   ]
 }
-
-
-
