@@ -1,9 +1,9 @@
 const {
   compareFollowersToFollowing,
-  sendMessagesToTimeline
+  listenAndProcessTootTimeline
 } = require('./js/bot')
 
-sendMessagesToTimeline()
+listenAndProcessTootTimeline()
 
 const express = require('express')
 const app = express()

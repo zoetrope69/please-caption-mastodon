@@ -101,61 +101,73 @@ function compareFollowersToFollowing () {
   })
 }
 
-function sendMessagesToTimeline() {
+function processNotificationEvent(message) {
+ const userId = message.data.account.id
+
+  // if a user follows the bot
+  if (message.data.type === 'follow') {
+    followUser(userId).then((result) => {
+      console.info('Followed back: ', result)
+    }).catch(console.error)
+  }
+}
+
+
+function processDeleteEvent(message) {
+  const messageId = message.data.toString()
+  console.info('Message ID: ', messageId)
+
+  getAccountId().then(accountId => {
+    getStatuses(accountId).then(statuses => {
+      const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
+      if (!statusBotRepliedTo) {
+        return console.info('Couldnt find message we replied to')
+      }
+
+      deleteStatus(statusBotRepliedTo.id).then(result => {
+        console.info('Deleted status: ', result.id)
+      }).catch(console.error)
+    })
+  })
+}
+
+function proccessUpdateEvent(message) {
+  console.info('Message ID: ', message.data.id)
+
+  if (!doesMessageHaveUnCaptionedImages(message.data)) {
+    return
+  }
+
+  const missingData = message.data && message.data.account
+  if (!missingData) {
+    return
+  }
+
+  const messageId = message.data.reblog ? message.data.reblog.id : message.data.id;
+  const username = '@' + message.data.account.acct
+
+  sendPrivateStatus(messageId, username, message.data.reblog).then(result => {
+    console.info('Sent message to: ', result.id)
+  }).catch(console.error)
+}
+
+function listenAndProcessTootTimeline() {
   const listener = mastodonClient.stream('streaming/user')
   console.info('Listening on the timeline for messages')
 
   listener.on('message', (message) => {
     console.info('Message recieved: ', message.event)
-    
+
     if (message.event === 'notification') {
-      if (message.data.type !== 'follow') {
-        return
-      }
-
-      const userId = message.data.account.id
-      
-      followUser(userId).then(result => {
-        console.info('Followed back: ', result)
-      }).catch(console.error)
+      processNotificationEvent(message)
     }
-    
+
     if (message.event === 'delete') {
-      const messageId = message.data.toString()
-      console.info('Message ID: ', messageId)
-      
-      getAccountId().then(accountId => {
-        getStatuses(accountId).then(statuses => {
-          const statusBotRepliedTo = statuses.find(status => status.in_reply_to_id === messageId)
-          if (!statusBotRepliedTo) {
-            return console.info('Couldnt find message we replied to')
-          }
-
-          deleteStatus(statusBotRepliedTo.id).then(result => {
-            console.info('Deleted status: ', result.id)
-          }).catch(console.error)
-        })
-      })
+      processDeleteEvent(message)
     }
-    
+
     if (message.event === 'update') {
-      console.info('Message ID: ', message.data.id)
-      
-      if (!doesMessageHaveUnCaptionedImages(message.data)) {
-        return
-      }
-
-      const missingData = message.data && message.data.account
-      if (!missingData) {
-        return
-      }
-
-      const messageId = message.data.reblog ? message.data.reblog.id : message.data.id;
-      const username = '@' + message.data.account.acct
-
-      sendPrivateStatus(messageId, username, message.data.reblog).then(result => {
-        console.info('Sent message to: ', result.id)
-      }).catch(console.error)
+      proccessUpdateEvent(message)
     }
   })
 
@@ -164,5 +176,5 @@ function sendMessagesToTimeline() {
 
 module.exports = {
   compareFollowersToFollowing,
-  sendMessagesToTimeline
+  listenAndProcessTootTimeline
 }
