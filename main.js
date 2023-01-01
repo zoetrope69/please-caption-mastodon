@@ -1,3 +1,6 @@
+// populate process.env environment variables from .env file
+require('dotenv').config();
+
 const {
   compareFollowersToFollowing,
   listenAndProcessTootTimeline
