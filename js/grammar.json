@@ -1,10 +1,6 @@
 {
-  "origin": [
-    "#words# #emojis# \n\n#deleteredraft#"
-  ],
-  "emojis": [
-    "📷", "📸", "🤳", "🎥", "📹", "", "", "", "", ""
-  ],
+  "origin": ["#words# #emojis# \n\n#deleteredraft#"],
+  "emojis": ["📷", "📸", "🤳", "🎥", "📹", "", "", "", "", ""],
   "words": [
     "Please don't forget to caption the media in your toots!",
     "Hey, this toot's media don't all have descriptions!",
@@ -21,6 +17,3 @@
     "If you want to add them, choose (1) 'Delete & re-draft' or (2) 'Edit', remove, then add."
   ]
 }
-
-
-
