@@ -141,17 +141,15 @@ function processNotificationEvent(message) {
     }
 
     /*
-      check if the account that favourited owned
-      the toot that our bot had replied to
+      delete the bot's toot the user favourited
+      as it's a direct message from the bot
+      we do not need to check who favourited it
     */
-    if (account.id === status.in_reply_to_account_id) {
-      // delete the bot's toot the user favourited
-      deleteStatus(status.id)
-        .then((result) => {
-          console.info("Deleted status via user favourite: ", result.id);
-        })
-        .catch(console.error);
-    }
+    deleteStatus(status.id)
+      .then((result) => {
+        console.info("Deleted status via user favourite: ", result.id);
+      })
+      .catch(console.error);
   }
 }
 
