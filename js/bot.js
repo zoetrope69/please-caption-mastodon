@@ -1,6 +1,10 @@
-const fs = require("fs");
-const { getRandomText } = require("./text");
-
+const {
+  getRandomTextForPosts,
+  getRandomTextForReblogs,
+  getRandomTextForFancyFormatting,
+  FAVOURITE_TOOT_TO_DELETE_STRING,
+} = require("./text");
+const hasFancyFormatting = require("./fancyFormatting");
 const {
   mastodonClient,
 
@@ -14,12 +18,11 @@ const {
   getFollowersAndFollowing,
   getRelationships,
 } = require("./mastodon");
-const { FAVOURITE_TOOT_TO_DELETE_STRING } = require("./text");
 
-function sendPrivateStatus(inReplyToId, username, reblog) {
+function sendPrivateStatus(inReplyToId, username, text) {
   const params = {
     in_reply_to_id: inReplyToId,
-    status: `${username} ${getRandomText(reblog)}`,
+    status: `${username} ${text}`,
     visibility: "direct",
   };
   return sendStatus(params);
@@ -45,6 +48,13 @@ function doesMessageHaveUnCaptionedImages(message) {
   );
 
   return atleastOneAttachmentDoesntHaveACaption;
+}
+
+function doesMessageHaveFancyFormatting(data) {
+  if (data.reblog) {
+    return doesMessageHaveFancyFormatting(data.reblog);
+  }
+  return hasFancyFormatting(data.content);
 }
 
 function removeUsersWhoShouldntBeSentAFollow(ids) {
@@ -178,7 +188,9 @@ function processDeleteEvent(message) {
 function proccessUpdateEvent(message) {
   console.info("Message ID: ", message.data.id);
 
-  if (!doesMessageHaveUnCaptionedImages(message.data)) {
+  const uncaptioned = doesMessageHaveUnCaptionedImages(message.data);
+  const fancyFormatted = doesMessageHaveFancyFormatting(message.data);
+  if (!uncaptioned && !fancyFormatted) {
     return;
   }
 
@@ -192,7 +204,19 @@ function proccessUpdateEvent(message) {
     : message.data.id;
   const username = "@" + message.data.account.acct;
 
-  sendPrivateStatus(messageId, username, message.data.reblog)
+  // this won't have the username prepended to it
+  let text;
+  if (fancyFormatted) {
+    // has fancy formatting via Unicode math characters
+    text = getRandomTextForFancyFormatting();
+  } else {
+    // posted or reblogged (boosted) non-captioned image
+    text = message.data.reblog
+      ? getRandomTextForReblogs()
+      : getRandomTextForPosts();
+  }
+
+  sendPrivateStatus(messageId, username, text)
     .then((result) => {
       console.info("Sent message to: ", result.id);
     })
