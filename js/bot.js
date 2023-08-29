@@ -27,7 +27,9 @@ function sendPrivateStatus(inReplyToId, username, reblog) {
 
 function doesMessageHaveUnCaptionedImages(message) {
   if (message.reblog) {
-    return doesMessageHaveUnCaptionedImages(message.reblog);
+    // We don't have a simple and reliable way to detect edited reblogs, so just skip this for now
+    // return doesMessageHaveUnCaptionedImages(message.reblog);
+    return;
   }
 
   const mediaAttachments = message.media_attachments;
