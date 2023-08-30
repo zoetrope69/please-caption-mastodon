@@ -172,7 +172,7 @@ async function processNotificationEvent(message) {
   // an alternative to them just blocking us, and more lightweight than enumerating over all of the
   // people we follow (thousands at this point, in 2023).
   if (type === "mention") {
-    if (STOP_REGEXP.test(status.content)) {
+    if (status.mentions.length === 1 && STOP_REGEXP.test(status.content)) {
       const [{ following, followed_by }] = await getRelationships([
         status.account.id,
       ]);
