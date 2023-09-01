@@ -15,8 +15,10 @@ const {
   getRelationships,
 } = require("./mastodon");
 const { FAVOURITE_TOOT_TO_DELETE_STRING } = require("./text");
+const db = require("./db");
 
 function sendPrivateStatus(inReplyToId, username, reblog) {
+  db.warnTootedUncaptioned();
   const params = {
     in_reply_to_id: inReplyToId,
     status: `${username} ${getRandomText(reblog)}`,
@@ -27,8 +29,15 @@ function sendPrivateStatus(inReplyToId, username, reblog) {
 
 function doesMessageHaveUnCaptionedImages(message) {
   if (message.reblog) {
-    // We don't have a simple and reliable way to detect edited reblogs, so just skip this for now
-    // return doesMessageHaveUnCaptionedImages(message.reblog);
+    // We don't have a simple and reliable way to detect edited reblogs, so just skip this for now.
+    // However, log this. `search` here because per #12 the `/search` endpoint seems to fetch edits
+    // from the remote server?
+    const possiblyUncaptionedBoost = doesMessageHaveUnCaptionedImages(
+      message.reblog
+    );
+    if (possiblyUncaptionedBoost) {
+      db.search();
+    }
     return;
   }
 
@@ -147,6 +156,7 @@ function processNotificationEvent(message) {
       as it's a direct message from the bot
       we do not need to check who favourited it
     */
+    db.deleteBecauseTheyFaved();
     deleteStatus(status.id)
       .then((result) => {
         console.info("Deleted status via user favourite: ", result.id);
@@ -165,9 +175,11 @@ function processDeleteEvent(message) {
         (status) => status.in_reply_to_id === messageId
       );
       if (!statusBotRepliedTo) {
+        db.deletedNothingThoTheyDeleted();
         return console.info("Couldnt find message we replied to");
       }
 
+      db.deleteBecauseTheyDeleted();
       deleteStatus(statusBotRepliedTo.id)
         .then((result) => {
           console.info("Deleted status: ", result.id);
