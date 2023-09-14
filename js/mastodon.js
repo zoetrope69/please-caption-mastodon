@@ -68,6 +68,7 @@ function followUser(accountId) {
 }
 
 function unfollowUser(accountId) {
+  db.unfollow();
   return mastodonClient
     .post(`accounts/${accountId}/unfollow`, {})
     .then((resp) => resp.data.id);
