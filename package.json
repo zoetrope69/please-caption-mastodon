@@ -6,6 +6,7 @@
     "start": "node main.js"
   },
   "dependencies": {
+    "better-sqlite3": "^8.5.2",
     "express": "^4.16.4",
     "mastodon-api": "github:fasiha/mastodon-api#delete-id-string-publish",
     "parse-link-header": "^1.0.1",

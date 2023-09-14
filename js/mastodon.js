@@ -1,4 +1,5 @@
 const { MASTODON_ACCESS_TOKEN, MASTODON_API_URL } = process.env;
+const db = require("./db");
 
 if (!MASTODON_ACCESS_TOKEN || !MASTODON_API_URL) {
   console.error("Missing environment variables from Mastodon. See README");
@@ -56,12 +57,13 @@ function sendStatus(params) {
 }
 
 function deleteStatus(id) {
+  db.deleteStatus();
   return mastodonClient.delete(`statuses/${id}`).then((resp) => resp.data);
 }
 
 function followUser(accountId) {
   return mastodonClient
-    .post(`accounts/${accountId}/follow`, { reblogs: false })
+    .post(`accounts/${accountId}/follow`, { reblogs: true })
     .then((resp) => resp.data.id);
 }
 
@@ -91,6 +93,7 @@ function getFollowersAndFollowing(accountId) {
 }
 
 function getRelationships(ids) {
+  db.relationships();
   return mastodonClient
     .get("accounts/relationships", { id: ids })
     .then((resp) => resp.data);
