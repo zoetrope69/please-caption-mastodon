@@ -203,11 +203,11 @@ function sendFarewell(inReplyToId, username) {
     in_reply_to_id: inReplyToId,
     status: `${username} Hi!
 
-This bot received your "STOP" and will stop following you.
+This bot received your "STOP" 🛑 and will stop following you.
 
-If this was accidental, or if you ever want to receive these notifications again, just follow again.
+If this was accidental, or if you ever want to receive these notifications again, follow once again 🔄.
 
-Best wishes!`,
+👋 Best wishes!`,
     visibility: "direct",
   };
   console.log("Sending farewell", inReplyToId, username);
