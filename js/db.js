@@ -17,6 +17,8 @@
  * 3. `relationships` because this will be used to detect STOP requests to unfollow (see #14)
  */
 
+const { STATUS_TO_REPLY_CACHE } = require("./replyCache");
+
 // Initialize and load the db
 const db = require("better-sqlite3")(".data/logs.db");
 db.pragma("journal_mode = WAL");
@@ -43,6 +45,7 @@ function initializeRequests() {
     deleteBecauseTheyDeleted: 0,
     deleteBecauseTheyFaved: 0,
     deletedNothingThoTheyDeleted: 0,
+    deleteBecauseTheyEdited: 0,
     relationships: 0,
     search: 0,
     warnTootedUncaptioned: 0,
@@ -64,6 +67,9 @@ function deleteBecauseTheyFaved() {
 function deletedNothingThoTheyDeleted() {
   requestsPerType.deletedNothingThoTheyDeleted++;
 }
+function deleteBecauseTheyEdited() {
+  requestsPerType.deleteBecauseTheyEdited++;
+}
 function search() {
   requestsPerType.search++;
 }
@@ -78,6 +84,7 @@ function warnTootedUncaptioned() {
 const WINDOW_SECONDS = 30 * 60;
 const insertStatement = db.prepare(`insert into logs values (?, ?, ?)`);
 const dbInterval = setInterval(() => {
+  requestsPerType.cacheSize = STATUS_TO_REPLY_CACHE.size;
   insertStatement.run(
     Date.now(),
     WINDOW_SECONDS,
@@ -90,6 +97,7 @@ module.exports = {
   deleteBecauseTheyDeleted,
   deleteBecauseTheyFaved,
   deletedNothingThoTheyDeleted,
+  deleteBecauseTheyEdited,
   deleteStatus,
   relationships,
   search,

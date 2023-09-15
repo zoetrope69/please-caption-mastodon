@@ -15,6 +15,7 @@ const {
   getRelationships,
 } = require("./mastodon");
 const { FAVOURITE_TOOT_TO_DELETE_STRING } = require("./text");
+const { STATUS_TO_REPLY_CACHE } = require("./replyCache");
 const db = require("./db");
 
 function sendPrivateStatus(inReplyToId, username, reblog) {
@@ -169,27 +170,22 @@ function processDeleteEvent(message) {
   const messageId = message.data.toString();
   console.info("Message ID: ", messageId);
 
-  getAccountId().then((accountId) => {
-    getStatuses(accountId).then((statuses) => {
-      const statusBotRepliedTo = statuses.find(
-        (status) => status.in_reply_to_id === messageId
-      );
-      if (!statusBotRepliedTo) {
-        db.deletedNothingThoTheyDeleted();
-        return console.info("Couldnt find message we replied to");
-      }
-
-      db.deleteBecauseTheyDeleted();
-      deleteStatus(statusBotRepliedTo.id)
-        .then((result) => {
-          console.info("Deleted status: ", result.id);
-        })
-        .catch(console.error);
-    });
-  });
+  if (STATUS_TO_REPLY_CACHE.has(messageId)) {
+    const ourReply = STATUS_TO_REPLY_CACHE.get(messageId);
+    db.deleteBecauseTheyDeleted();
+    deleteStatus(ourReply)
+      .then((result) => {
+        STATUS_TO_REPLY_CACHE.delete(messageId);
+        console.info("Deleted status: ", result.id);
+      })
+      .catch(console.error);
+  } else {
+    db.deletedNothingThoTheyDeleted();
+    return console.info("Couldnt find message we replied to");
+  }
 }
 
-function proccessUpdateEvent(message) {
+function processUpdateEvent(message) {
   console.info("Message ID: ", message.data.id);
 
   if (!doesMessageHaveUnCaptionedImages(message.data)) {
@@ -209,8 +205,40 @@ function proccessUpdateEvent(message) {
   sendPrivateStatus(messageId, username, message.data.reblog)
     .then((result) => {
       console.info("Sent message to: ", result.id);
+      STATUS_TO_REPLY_CACHE.set(messageId, result.id);
     })
     .catch(console.error);
+}
+
+function processEditEvent(message) {
+  const allCaptioned = !doesMessageHaveUnCaptionedImages(message.data);
+
+  if (allCaptioned) {
+    // all we have to do is check if we previously DMed them something about missing captions. If
+    // so, delete that DM
+    if (STATUS_TO_REPLY_CACHE.has(message.data.id)) {
+      const ourReply = STATUS_TO_REPLY_CACHE.get(message.data.id);
+      db.deleteBecauseTheyEdited();
+      deleteStatus(ourReply)
+        .then((result) => {
+          STATUS_TO_REPLY_CACHE.delete(message.data.id);
+          console.info("Deleted status: ", result.id);
+        })
+        .catch(console.error);
+    }
+  } else {
+    // missing captions! What to do?
+    //
+    // They might have just edited text in a toot that already had missing captions (hopefully we
+    // DM'ed them about it) or they might have added a new image missing captions. We don't have a
+    // perfect way to know which, because our post-to-DM cache is unreliable.
+    //
+    // So do nothing.
+    //
+    // (If someday we can easily ask the server "have we replied to this post?", then we can revisit
+    // this: if we've already DMed them, do nothing. If we haven't, they might have favorited our DM
+    // and we deleted it, in which case we can maybe ping them again, or perhaps stay silent.)
+  }
 }
 
 function listenAndProcessTootTimeline() {
@@ -229,7 +257,11 @@ function listenAndProcessTootTimeline() {
     }
 
     if (message.event === "update") {
-      proccessUpdateEvent(message);
+      processUpdateEvent(message);
+    }
+
+    if (message.event === "status.update") {
+      processEditEvent(message);
     }
   });
 
