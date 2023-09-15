@@ -17,6 +17,8 @@
  * 3. `relationships` because this will be used to detect STOP requests to unfollow (see #14)
  */
 
+const { STATUS_TO_REPLY_CACHE } = require("./replyCache");
+
 // Initialize and load the db
 const db = require("better-sqlite3")(".data/logs.db");
 db.pragma("journal_mode = WAL");
@@ -78,6 +80,7 @@ function warnTootedUncaptioned() {
 const WINDOW_SECONDS = 30 * 60;
 const insertStatement = db.prepare(`insert into logs values (?, ?, ?)`);
 const dbInterval = setInterval(() => {
+  requestsPerType.cacheSize = STATUS_TO_REPLY_CACHE.size;
   insertStatement.run(
     Date.now(),
     WINDOW_SECONDS,
