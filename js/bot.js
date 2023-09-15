@@ -15,6 +15,7 @@ const {
   getRelationships,
 } = require("./mastodon");
 const { FAVOURITE_TOOT_TO_DELETE_STRING } = require("./text");
+const { STATUS_TO_REPLY_CACHE } = require("./replyCache");
 const db = require("./db");
 
 function sendPrivateStatus(inReplyToId, username, reblog) {
@@ -169,24 +170,19 @@ function processDeleteEvent(message) {
   const messageId = message.data.toString();
   console.info("Message ID: ", messageId);
 
-  getAccountId().then((accountId) => {
-    getStatuses(accountId).then((statuses) => {
-      const statusBotRepliedTo = statuses.find(
-        (status) => status.in_reply_to_id === messageId
-      );
-      if (!statusBotRepliedTo) {
-        db.deletedNothingThoTheyDeleted();
-        return console.info("Couldnt find message we replied to");
-      }
-
-      db.deleteBecauseTheyDeleted();
-      deleteStatus(statusBotRepliedTo.id)
-        .then((result) => {
-          console.info("Deleted status: ", result.id);
-        })
-        .catch(console.error);
-    });
-  });
+  if (STATUS_TO_REPLY_CACHE.has(messageId)) {
+    const ourReply = STATUS_TO_REPLY_CACHE.get(messageId);
+    db.deleteBecauseTheyDeleted();
+    deleteStatus(ourReply)
+      .then((result) => {
+        STATUS_TO_REPLY_CACHE.delete(messageId);
+        console.info("Deleted status: ", result.id);
+      })
+      .catch(console.error);
+  } else {
+    db.deletedNothingThoTheyDeleted();
+    return console.info("Couldnt find message we replied to");
+  }
 }
 
 function proccessUpdateEvent(message) {
@@ -209,6 +205,7 @@ function proccessUpdateEvent(message) {
   sendPrivateStatus(messageId, username, message.data.reblog)
     .then((result) => {
       console.info("Sent message to: ", result.id);
+      STATUS_TO_REPLY_CACHE.set(messageId, result.id);
     })
     .catch(console.error);
 }
