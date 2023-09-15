@@ -185,7 +185,7 @@ function processDeleteEvent(message) {
   }
 }
 
-function proccessUpdateEvent(message) {
+function processUpdateEvent(message) {
   console.info("Message ID: ", message.data.id);
 
   if (!doesMessageHaveUnCaptionedImages(message.data)) {
@@ -210,6 +210,37 @@ function proccessUpdateEvent(message) {
     .catch(console.error);
 }
 
+function processEditEvent(message) {
+  const allCaptioned = !doesMessageHaveUnCaptionedImages(message.data);
+
+  if (allCaptioned) {
+    // all we have to do is check if we previously DMed them something about missing captions. If
+    // so, delete that DM
+    if (STATUS_TO_REPLY_CACHE.has(message.data.id)) {
+      const ourReply = STATUS_TO_REPLY_CACHE.get(message.data.id);
+      db.deleteBecauseTheyEdited();
+      deleteStatus(ourReply)
+        .then((result) => {
+          STATUS_TO_REPLY_CACHE.delete(message.data.id);
+          console.info("Deleted status: ", result.id);
+        })
+        .catch(console.error);
+    }
+  } else {
+    // missing captions! What to do?
+    //
+    // They might have just edited text in a toot that already had missing captions (hopefully we
+    // DM'ed them about it) or they might have added a new image missing captions. We don't have a
+    // perfect way to know which, because our post-to-DM cache is unreliable.
+    //
+    // So do nothing.
+    //
+    // (If someday we can easily ask the server "have we replied to this post?", then we can revisit
+    // this: if we've already DMed them, do nothing. If we haven't, they might have favorited our DM
+    // and we deleted it, in which case we can maybe ping them again, or perhaps stay silent.)
+  }
+}
+
 function listenAndProcessTootTimeline() {
   const listener = mastodonClient.stream("streaming/user");
   console.info("Listening on the timeline for messages");
@@ -226,7 +257,11 @@ function listenAndProcessTootTimeline() {
     }
 
     if (message.event === "update") {
-      proccessUpdateEvent(message);
+      processUpdateEvent(message);
+    }
+
+    if (message.event === "status.update") {
+      processEditEvent(message);
     }
   });
 

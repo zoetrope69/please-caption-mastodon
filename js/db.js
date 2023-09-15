@@ -45,6 +45,7 @@ function initializeRequests() {
     deleteBecauseTheyDeleted: 0,
     deleteBecauseTheyFaved: 0,
     deletedNothingThoTheyDeleted: 0,
+    deleteBecauseTheyEdited: 0,
     relationships: 0,
     search: 0,
     warnTootedUncaptioned: 0,
@@ -65,6 +66,9 @@ function deleteBecauseTheyFaved() {
 }
 function deletedNothingThoTheyDeleted() {
   requestsPerType.deletedNothingThoTheyDeleted++;
+}
+function deleteBecauseTheyEdited() {
+  requestsPerType.deleteBecauseTheyEdited++;
 }
 function search() {
   requestsPerType.search++;
@@ -93,6 +97,7 @@ module.exports = {
   deleteBecauseTheyDeleted,
   deleteBecauseTheyFaved,
   deletedNothingThoTheyDeleted,
+  deleteBecauseTheyEdited,
   deleteStatus,
   relationships,
   search,
