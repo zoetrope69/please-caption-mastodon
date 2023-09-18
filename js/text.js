@@ -5,6 +5,8 @@ const reblogGrammar = tracery.createGrammar(require("./reblogGrammar.json"));
 reblogGrammar.addModifiers(tracery.baseEngModifiers);
 
 const FAVOURITE_TOOT_TO_DELETE_STRING = "⭐ Favourite this toot to delete it.";
+const STOP_STRING =
+  "🛑 Unfollow and reply STOP to stop receiving these notifications.";
 
 function getFlattenedGrammar(reblog) {
   if (reblog) {
@@ -16,7 +18,11 @@ function getFlattenedGrammar(reblog) {
 
 function getRandomText(reblog) {
   const flattenendGrammar = getFlattenedGrammar(reblog);
-  return `${flattenendGrammar} \n\n${FAVOURITE_TOOT_TO_DELETE_STRING}`;
+  return `${flattenendGrammar}
+
+${FAVOURITE_TOOT_TO_DELETE_STRING}
+
+${STOP_STRING}`;
 }
 
 module.exports = {

@@ -14,7 +14,7 @@
  *    we've replied to in memory instead of loading the server.
  * 2. `search` and `warnTootedUncaptioned` because this is a proposed way to detect whether a boost
  *    lacking image captions has been edited.
- * 3. `relationships` because this will be used to detect STOP requests to unfollow (see #14)
+ * 3. `relationships` because this is used to detect STOP requests to `unfollow` (see #14)
  */
 
 // Initialize and load the db
@@ -44,6 +44,7 @@ function initializeRequests() {
     deleteBecauseTheyFaved: 0,
     deletedNothingThoTheyDeleted: 0,
     relationships: 0,
+    unfollow: 0,
     search: 0,
     warnTootedUncaptioned: 0,
     // warnBoostedUncaptioned: 0,
@@ -70,6 +71,9 @@ function search() {
 function relationships() {
   requestsPerType.relationships++;
 }
+function unfollow() {
+  requestsPerType.unfollow++;
+}
 function warnTootedUncaptioned() {
   requestsPerType.warnTootedUncaptioned++;
 }
@@ -92,6 +96,7 @@ module.exports = {
   deletedNothingThoTheyDeleted,
   deleteStatus,
   relationships,
+  unfollow,
   search,
   warnTootedUncaptioned,
 };

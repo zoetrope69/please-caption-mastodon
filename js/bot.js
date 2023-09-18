@@ -132,7 +132,9 @@ function compareFollowersToFollowing() {
   });
 }
 
-function processNotificationEvent(message) {
+const STOP_REGEXP = /\bSTOP\b/;
+
+async function processNotificationEvent(message) {
   const { status, account, type } = message.data;
 
   // if a user follows the bot
@@ -142,6 +144,7 @@ function processNotificationEvent(message) {
         console.info("Followed back: ", result);
       })
       .catch(console.error);
+    return;
   }
 
   // if a user favourites the bot's toot
@@ -162,7 +165,53 @@ function processNotificationEvent(message) {
         console.info("Deleted status via user favourite: ", result.id);
       })
       .catch(console.error);
+    return;
   }
+
+  // If a user DMs "STOP" as a word in their toot and they don't follow me, unfollow them. This is
+  // an alternative to them just blocking us, and more lightweight than enumerating over all of the
+  // people we follow (thousands at this point, in 2023).
+  if (type === "mention") {
+    if (
+      // exactly 1 mention
+      status.mentions.length === 1 &&
+      // in a DM
+      status.visibility === "direct" &&
+      // replying to something we sent
+      status.mentions[0].id === status.in_reply_to_account_id &&
+      // and contains STOP
+      STOP_REGEXP.test(status.content)
+    ) {
+      // Are we following them and they're not following us? If so, DM and unfollow
+      const [{ following, followed_by }] = await getRelationships([
+        status.account.id,
+      ]);
+      if (following && !followed_by) {
+        await sendFarewell(status.id, "@" + account.acct);
+        await unfollowUser(status.account.id);
+        console.info(`Unfollowed ${status.account.id} via STOP: ${status.id}`);
+      }
+    }
+    return;
+  }
+
+  console.log("unhandled notification", type, status.id);
+}
+
+function sendFarewell(inReplyToId, username) {
+  const params = {
+    in_reply_to_id: inReplyToId,
+    status: `${username} Hi!
+
+This bot received your "STOP" 🛑 and has stopped following you.
+
+If this was accidental, or if you ever want to receive these notifications again, follow once again 🔄
+
+👋 Best wishes!`,
+    visibility: "direct",
+  };
+  console.log("Sending farewell", inReplyToId, username);
+  return sendStatus(params);
 }
 
 function processDeleteEvent(message) {
